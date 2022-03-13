@@ -1,0 +1,15 @@
+---
+- hosts: esxi
+  gather_facts: false
+  tasks:
+    - name: add portgroup
+      community.vmware.vmware_portgroup:
+        hostname: "{{ inventory_hostname }}"
+        username: "{{ esxi_username }}"
+        password: "{{ esxi_password }}"
+        validate_certs: false
+        hosts: "{{ inventory_hostname }}"
+        switch: vSwitch1
+        portgroup: port01
+        vlan_id: 100
+        state: present

@@ -1,0 +1,20 @@
+---
+- hosts: esxi
+  gather_facts: false
+  tasks:
+    - name: add vmkernel
+      community.vmware.vmware_vmkernel:
+        hostname: "{{ inventory_hostname }}"
+        username: "{{ esxi_username }}"
+        password: "{{ esxi_password }}"
+        validate_certs: false
+        esxi_hostname: "{{ inventory_hostname }}"
+        vswitch_name: vSwitch1
+        portgroup_name: port01
+        network:
+          type: static
+          ip_address: 192.168.0.162
+          subnet_mask: 255.255.255.0
+        enable_mgmt: true
+        enable_vmotion: true
+        state: present

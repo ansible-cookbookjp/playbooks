@@ -1,0 +1,19 @@
+---
+- hosts: vcenter
+  gather_facts: false
+  tasks:
+    - name: gather vm summary
+      community.vmware.vmware_guest_info:
+        hostname: "{{ inventory_hostname }}"
+        username: "{{ vcenter_username }}"
+        password: "{{ vcenter_password }}"
+        validate_certs: false
+        datacenter: DC01
+        name: new-vm01
+      register: summary
+
+    - name: generate summary report
+      ansible.builtin.template:
+        src: "{{ playbook_dir }}/templates/vmware_vm_summary_report_csv.j2"
+        dest: "{{ inventory_dir }}/vmware_vm_summary_report.csv"
+        mode: 0644

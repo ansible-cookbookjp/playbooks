@@ -1,0 +1,14 @@
+---
+- hosts: vcenter
+  gather_facts: false
+  tasks:
+    - name: create folder
+      community.vmware.vcenter_folder:
+        hostname: "{{ inventory_hostname }}"
+        username: "{{ vcenter_username }}"
+        password: "{{ vcenter_password }}"
+        validate_certs: false
+        datacenter: DC01
+        folder_name: F0
+        folder_type: vm
+        state: present

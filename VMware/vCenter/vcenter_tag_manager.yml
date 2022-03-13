@@ -1,0 +1,15 @@
+---
+- hosts: vcenter
+  gather_facts: false
+  tasks:
+    - name: assign tag to virtual machine
+      community.vmware.vmware_tag_manager:
+        hostname: "{{ inventory_hostname }}"
+        username: "{{ vcenter_username }}"
+        password: "{{ vcenter_password }}"
+        validate_certs: false
+        object_name: new-vm01
+        object_type: VirtualMachine
+        tag_names:
+          - test_tag01
+        state: present

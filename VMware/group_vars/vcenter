@@ -1,0 +1,6 @@
+---
+vcenter_username: administrator@vsphere.local
+vcenter_password: password
+vcenter_license: ''
+esxi_license: ''
+esxi_password: password

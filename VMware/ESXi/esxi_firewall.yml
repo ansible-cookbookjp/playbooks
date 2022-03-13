@@ -1,0 +1,20 @@
+---
+- hosts: esxi
+  gather_facts: false
+  tasks:
+    - name: set ESXi firewall rule
+      community.vmware.vmware_host_firewall_manager:
+        hostname: "{{ inventory_hostname }}"
+        username: "{{ esxi_username }}"
+        password: "{{ esxi_password }}"
+        validate_certs: false
+        esxi_hostname: "{{ inventory_hostname }}"
+        rules:
+          - name: sshServer
+            enabled: true
+            allowed_hosts:
+              all_ip: false
+              ip_address:
+                - 192.168.10.1
+              ip_network:
+                - 192.168.20.0/24

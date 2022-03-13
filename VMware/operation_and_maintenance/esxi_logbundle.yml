@@ -1,0 +1,15 @@
+---
+- hosts: vcenter
+  gather_facts: false
+  tasks:
+    - name: fetch ESXi log
+      community.vmware.vmware_host_logbundle:
+        hostname: "{{ inventory_hostname }}"
+        username: "{{ vcenter_username }}"
+        password: "{{ vcenter_password }}"
+        validate_certs: false
+        esxi_hostname: esxi-001.local
+        dest: "{{ inventory_dir }}/esxi_log/esxi-001.local.tgz"
+        manifests:
+          - System:Base
+          - VirtualMachines:VirtualMachineStats

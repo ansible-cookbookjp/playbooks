@@ -1,0 +1,20 @@
+---
+- hosts: vcenter
+  gather_facts: false
+  tasks:
+    - name: enable HA
+      community.vmware.vmware_cluster_ha:
+        hostname: "{{ inventory_hostname }}"
+        username: "{{ vcenter_username }}"
+        password: "{{ vcenter_password }}"
+        validate_certs: false
+        datacenter_name: DC01
+        cluster_name: Cluster01
+        enable_ha: true
+        ha_host_monitoring: enabled
+        ha_restart_priority: medium
+        ha_vm_monitoring: vmMonitoringOnly
+        ha_vm_failure_interval: 30
+        ha_vm_min_up_time: 120
+        ha_vm_max_failures: 3
+        ha_vm_max_failure_window: -1

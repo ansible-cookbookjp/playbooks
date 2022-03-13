@@ -1,0 +1,16 @@
+---
+- hosts: vcenter
+  gather_facts: false
+  tasks:
+    - name: add permission
+      community.vmware.vmware_object_role_permission:
+        hostname: "{{ inventory_hostname }}"
+        username: "{{ vcenter_username }}"
+        password: "{{ vcenter_password }}"
+        validate_certs: false
+        role: Admin
+        principal: vsphere.local\user01
+        object_name: F0
+        object_type: Folder
+        recursive: true
+        state: present

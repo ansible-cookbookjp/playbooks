@@ -1,0 +1,16 @@
+---
+- hosts: vcenter
+  gather_facts: false
+  tasks:
+    - name: create dvSwitch
+      community.vmware.vmware_dvswitch:
+        hostname: "{{ inventory_hostname }}"
+        username: "{{ vcenter_username }}"
+        password: "{{ vcenter_password }}"
+        validate_certs: false
+        datacenter: DC01
+        switch_name: dvswitch01
+        version: 7.0.0
+        mtu: 1500
+        uplink_quantity: 2
+        state: present

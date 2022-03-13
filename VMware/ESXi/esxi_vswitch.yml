@@ -1,0 +1,15 @@
+---
+- hosts: esxi
+  gather_facts: false
+  tasks:
+    - name: create vSwitch
+      community.vmware.vmware_vswitch:
+        hostname: "{{ inventory_hostname }}"
+        username: "{{ esxi_username }}"
+        password: "{{ esxi_password }}"
+        validate_certs: false
+        switch: vSwitch1
+        nics:
+          - vmnic1
+        mtu: 1500
+        state: present

@@ -1,0 +1,17 @@
+---
+- hosts: esxi
+  gather_facts: false
+  tasks:
+    - name: mount NFS volume as a datastore
+      community.vmware.vmware_host_datastore:
+        hostname: "{{ inventory_hostname }}"
+        username: "{{ esxi_username }}"
+        password: "{{ esxi_password }}"
+        validate_certs: false
+        esxi_hostname: "{{ inventory_hostname }}"
+        datastore_name: nfs_ds01
+        datastore_type: nfs
+        nfs_server: 192.168.10.58
+        nfs_path: /nfs_volume
+        nfs_ro: false
+        state: present

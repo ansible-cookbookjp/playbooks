@@ -1,0 +1,16 @@
+---
+- hosts: vcenter
+  gather_facts: false
+  tasks:
+    - name: fetch manifests
+      community.vmware.vmware_host_logbundle_info:
+        hostname: "{{ inventory_hostname }}"
+        username: "{{ vcenter_username }}"
+        password: "{{ vcenter_password }}"
+        validate_certs: false
+        esxi_hostname: esxi-001.local
+      register: log_manifests
+
+    - name: display log manifests
+      debug:
+        msg: "{{ log_manifests }}"

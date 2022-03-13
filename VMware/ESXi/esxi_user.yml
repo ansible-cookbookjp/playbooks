@@ -1,0 +1,14 @@
+---
+- hosts: esxi
+  gather_facts: false
+  tasks:
+    - name: add local user
+      community.vmware.vmware_local_user_manager:
+        hostname: "{{ inventory_hostname }}"
+        username: "{{ esxi_username }}"
+        password: "{{ esxi_password }}"
+        validate_certs: false
+        local_user_name: user01
+        local_user_password: P@ssw0rd
+        local_user_description: test user
+        state: present

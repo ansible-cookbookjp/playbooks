@@ -1,0 +1,17 @@
+---
+- hosts: vcenter
+  gather_facts: false
+  tasks:
+    - name: add category
+      community.vmware.vmware_category:
+        hostname: "{{ inventory_hostname }}"
+        username: "{{ vcenter_username }}"
+        password: "{{ vcenter_password }}"
+        validate_certs: false
+        category_name: category_test01
+        category_description: test category
+        category_cardinality: multiple
+        associable_object_types:
+          - Cluster
+          - Virtual Machine
+        state: present

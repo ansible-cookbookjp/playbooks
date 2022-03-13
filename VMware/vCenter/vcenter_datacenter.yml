@@ -1,0 +1,12 @@
+---
+- hosts: vcenter
+  gather_facts: false
+  tasks:
+    - name: create datacenter
+      community.vmware.vmware_datacenter:
+        hostname: "{{ inventory_hostname }}"
+        username: "{{ vcenter_username }}"
+        password: "{{ vcenter_password }}"
+        validate_certs: false
+        datacenter_name: DC01
+        state: present

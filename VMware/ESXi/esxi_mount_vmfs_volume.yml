@@ -1,0 +1,16 @@
+---
+- hosts: esxi
+  gather_facts: false
+  tasks:
+    - name: mount VMFS volume as a datastore
+      community.vmware.vmware_host_datastore:
+        hostname: "{{ inventory_hostname }}"
+        username: "{{ esxi_username }}"
+        password: "{{ esxi_password }}"
+        validate_certs: false
+        esxi_hostname: "{{ inventory_hostname }}"
+        datastore_name: vmfs_ds01
+        datastore_type: vmfs
+        vmfs_device_name: mpx.vmhba0:C0:T1:L0
+        vmfs_version: 6
+        state: present

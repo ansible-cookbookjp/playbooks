@@ -1,0 +1,18 @@
+---
+- hosts: vcenter
+  gather_facts: false
+  tasks:
+    - name: deploy vm with ovf file
+      community.vmware.vmware_deploy_ovf:
+        hostname: "{{ inventory_hostname }}"
+        username: "{{ vcenter_username }}"
+        password: "{{ vcenter_password }}"
+        validate_certs: false
+        datacenter: DC01
+        cluster: Cluster01
+        name: ovf-vm01
+        datastore: nfs_ds01
+        networks:
+          "VM Network": dvpg01
+        ovf: "{{ inventory_dir }}/export_ovf/CentOS7_TMP/CentOS7_TMP.ovf"
+        power_on: false

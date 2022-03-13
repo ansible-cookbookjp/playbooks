@@ -1,0 +1,15 @@
+---
+- hosts: vcenter
+  gather_facts: false
+  tasks:
+    - name: add dvs portgroup
+      community.vmware.vmware_dvs_portgroup:
+        hostname: "{{ inventory_hostname }}"
+        username: "{{ vcenter_username }}"
+        password: "{{ vcenter_password }}"
+        validate_certs: false
+        switch_name: dvswitch01
+        portgroup_name: dvpg01
+        vlan_id: 100
+        portgroup_type: earlyBinding
+        state: present

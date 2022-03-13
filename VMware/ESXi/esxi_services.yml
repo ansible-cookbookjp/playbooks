@@ -1,0 +1,14 @@
+---
+- hosts: esxi
+  gather_facts: false
+  tasks:
+    - name: start ssh service
+      community.vmware.vmware_host_service_manager:
+        hostname: "{{ inventory_hostname }}"
+        username: "{{ esxi_username }}"
+        password: "{{ esxi_password }}"
+        validate_certs: false
+        esxi_hostname: "{{ inventory_hostname }}"
+        service_name: TSM-SSH
+        service_policy: true
+        state: present

@@ -1,0 +1,16 @@
+---
+- hosts: vcenter
+  gather_facts: false
+  tasks:
+    - name: create resource pool
+      community.vmware.vmware_resource_pool:
+        hostname: "{{ inventory_hostname }}"
+        username: "{{ vcenter_username }}"
+        password: "{{ vcenter_password }}"
+        validate_certs: false
+        datacenter: DC01
+        cluster: Cluster01
+        resource_pool: RP01
+        cpu_reservation: 1000
+        mem_reservation: 2048
+        state: present

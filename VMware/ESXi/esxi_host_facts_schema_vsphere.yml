@@ -1,0 +1,18 @@
+---
+- hosts: esxi
+  gather_facts: false
+  tasks:
+    - name: gather host facts with vsphere schema
+      community.vmware.vmware_host_facts:
+        hostname: "{{ inventory_hostname }}"
+        username: "{{ esxi_username }}"
+        password: "{{ esxi_password }}"
+        validate_certs: false
+        schema: vsphere
+        properties:
+          - config.storageDevice.hostBusAdapter
+      register: host_facts
+
+    - name: display host facts
+      debug:
+        msg: "{{ host_facts.ansible_facts.config.storageDevice.hostBusAdapter }}"

@@ -1,0 +1,19 @@
+---
+- hosts: vcenter
+  gather_facts: false
+  tasks:
+    - name: fetch file from vm
+      community.vmware.vmware_guest_file_operation:
+        hostname: "{{ inventory_hostname }}"
+        username: "{{ vcenter_username }}"
+        password: "{{ vcenter_password }}"
+        validate_certs: false
+        datacenter: DC01
+        cluster: Cluster01
+        folder: /vm/F0
+        vm_id: new-vm01
+        vm_username: root
+        vm_password: P@ssw0rd
+        fetch:
+          src: "/etc/hosts"
+          dest: "{{ inventory_dir }}/hosts"

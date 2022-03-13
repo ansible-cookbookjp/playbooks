@@ -1,0 +1,14 @@
+---
+- hosts: vcenter
+  gather_facts: false
+  tasks:
+    - name: add tag
+      community.vmware.vmware_tag:
+        hostname: "{{ inventory_hostname }}"
+        username: "{{ vcenter_username }}"
+        password: "{{ vcenter_password }}"
+        validate_certs: false
+        tag_name: test_tag01
+        tag_description: test tag
+        category_id: 'urn:vmomi:InventoryServiceCategory:e68502c5-65aa-41d3-9576-c45d76a63889:GLOBAL'
+        state: present

@@ -1,0 +1,30 @@
+---
+- hosts: vcenter
+  gather_facts: false
+  tasks:
+    - name: clone vm
+      community.vmware.vmware_guest:
+        hostname: "{{ inventory_hostname }}"
+        username: "{{ vcenter_username }}"
+        password: "{{ vcenter_password }}"
+        validate_certs: false
+        datacenter: DC01
+        cluster: Cluster01
+        folder: /vm/F0
+        template: new-vm01
+        name: clone-vm01
+        hardware:
+          num_cpus: 2
+          memory_mb: 1024
+        networks:
+          - name: VM Network
+            ip: 192.168.10.2
+            netmask: 255.255.255.0
+            gateway: 192.168.10.1
+        customization:
+          hostname: clone-vm01
+          timezone: Asia/Tokyo
+          dns_servers:
+            - 8.8.8.8
+        wait_for_customization: true
+        state: poweredon

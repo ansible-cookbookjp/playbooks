@@ -1,0 +1,12 @@
+---
+- hosts: vcenter
+  gather_facts: false
+  tasks:
+    - name: vmotion
+      community.vmware.vmware_vmotion:
+        hostname: "{{ inventory_hostname }}"
+        username: "{{ vcenter_username }}"
+        password: "{{ vcenter_password }}"
+        validate_certs: false
+        vm_name: new-vm01
+        destination_host: esxi-002.local
