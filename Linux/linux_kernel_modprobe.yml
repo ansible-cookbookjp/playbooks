@@ -1,0 +1,10 @@
+---
+- hosts: linux
+  gather_facts: false
+  become: true
+
+  tasks:
+    - name: load br_netfilter
+      community.general.modprobe:
+        name: br_netfilter
+        state: present

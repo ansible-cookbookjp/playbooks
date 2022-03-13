@@ -1,0 +1,20 @@
+---
+- hosts: linux
+  gather_facts: false
+  become: true
+
+  tasks:
+    - name: enable kubelet
+      ansible.builtin.systemd:
+        name: kubelet
+        state: restarted
+        daemon_reload: true
+        enabled: true
+        masked: false
+
+    # - name: disable httpd
+    #   ansible.builtin.systemd:
+    #     name: httpd
+    #     state: stopped
+    #     enabled: false
+    #     masked: true

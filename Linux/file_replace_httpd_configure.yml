@@ -1,0 +1,14 @@
+---
+- hosts: private_www
+  gather_facts: false
+  become: true
+
+  tasks:
+    - name: enable authconfig
+      ansible.builtin.replace:
+        path: /etc/httpd/conf/httpd.conf
+        regexp: ^(\s*AllowOverride).*
+        replace: \1 AuthConfig
+        after: <Directory "/var/www/html">
+        before: </Directory>
+        validate: httpd -t -f %s

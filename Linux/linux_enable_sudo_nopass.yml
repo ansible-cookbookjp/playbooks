@@ -1,0 +1,21 @@
+---
+- hosts: linux_all
+  gather_facts: true
+  become: true
+
+  tasks:
+    - name: enable sudo with no password (on RHEL)
+      ansible.builtin.copy:
+        dest: /etc/sudoers.d/nopass
+        mode: 0600
+        content: |
+          %wheel ALL=(ALL) NOPASSWD: ALL
+      when: ansible_facts.os_family == 'RedHat'
+
+    - name: enable sudo with no password (on Debian)
+      ansible.builtin.copy:
+        dest: /etc/sudoers.d/nopass
+        mode: 0600
+        content: |
+          %sudo ALL=(ALL) NOPASSWD: ALL
+      when: ansible_facts.os_family == 'Debian'

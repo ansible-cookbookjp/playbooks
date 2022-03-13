@@ -1,0 +1,14 @@
+$TTL 3600
+@           IN      SOA     ns.example.org. root.example.org.(
+                                {{ serial }}      ; Serial
+                                3600            ; Refresh
+                                900             ; Retry
+                                3600000         ; Expire
+                                3600 )          ; Minimum
+            IN      NS      ns.example.org.
+ns          IN      A       172.16.0.41
+{% for host in groups['all'] %}
+{% if hostvars[host].ansible_facts.ens224 is defined %}
+{{ host }}  IN      A       {{ hostvars[host].ansible_facts.ens224.ipv4.address }}
+{% endif %}
+{% endfor %}

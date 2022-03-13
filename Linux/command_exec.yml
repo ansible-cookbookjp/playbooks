@@ -1,0 +1,21 @@
+---
+- hosts: linux
+  gather_facts: false
+
+  tasks:
+    - name: execute command
+      ansible.builtin.command:
+        cmd: nmcli connection show
+
+    - name: execute command
+      ansible.builtin.command: nmcli connection show "System ens192"
+
+    - name: execute command (with argv)
+      ansible.builtin.command:
+        argv:
+          - nmcli
+          - connection
+          - show
+          - System ens192
+      changed_when: false  # 実行ステータスは常にok
+      check_mode: false    # チェックモードでも常に実行

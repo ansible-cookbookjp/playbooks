@@ -1,0 +1,39 @@
+---
+- hosts: linux_all
+  gather_facts: true
+  become: true
+
+  tasks:
+    - name: create user
+      ansible.builtin.user:
+        name: sample-user
+        password: "{{ 'sample_password' | ansible.builtin.password_hash('sha512') }}"
+        uid: 1050
+        shell: /usr/bin/bash
+
+    - name: create group
+      ansible.builtin.group:
+        name: app-group
+        gid: 2200
+
+    - name: create user with group
+      ansible.builtin.user:
+        name: app-user
+        uid: 1056
+        group: app-group
+        shell: /sbin/nologin
+        home: /opt/app
+        # create_home: false
+        # state: absent
+        # remove: true
+
+    - name: create user with additional group
+      ansible.builtin.user:
+        name: admin-user
+        password: "{{ 'admin-password' | ansible.builtin.password_hash('sha512') }}"
+        shell: /usr/bin/bash
+        uid: 1250
+        groups:
+          - wheel
+        append: true
+      when: ansible_facts.os_family == 'RedHat'

@@ -1,0 +1,103 @@
+---
+- hosts: public_www
+  gather_facts: false
+  become: true
+
+  vars:
+    cert_dir: /opt/acme_cert
+
+  tasks:
+    - name: install httpd
+      ansible.builtin.dnf:
+        name:
+          - httpd
+          - mod_ssl
+        state: present
+
+    # - name: permit traffic in default zone for https/http
+    #   ansible.posix.firewalld:
+    #     service: "{{ item }}"
+    #     permanent: true
+    #     immediate: true
+    #     state: enabled
+    #   loop:
+    #     - https
+    #     - http
+
+    - name: start httpd
+      ansible.builtin.service:
+        name: httpd
+        state: started
+
+    - name: create directory
+      ansible.builtin.file:
+        state: directory
+        path: "{{ cert_dir }}/{{ server_fqdn }}"
+
+    - name: (1) create account private key
+      community.crypto.openssl_privatekey:
+        path: "{{ cert_dir }}/{{ server_fqdn }}/account.key"
+
+    - name: (2) create server key
+      community.crypto.openssl_privatekey:
+        path: "{{ cert_dir }}/{{ server_fqdn }}/{{ server_fqdn }}.key"
+
+    - name: (3) create csr
+      community.crypto.openssl_csr:
+        path: "{{ cert_dir }}/{{ server_fqdn }}/{{ server_fqdn }}.csr"
+        privatekey_path: "{{ cert_dir }}/{{ server_fqdn }}/{{ server_fqdn }}.key"
+        common_name: "{{ server_fqdn }}"
+
+    - name: (4) create challenge for {{ server_fqdn }} using a account key file.
+      community.crypto.acme_certificate:
+        account_key_src: "{{ cert_dir }}/{{ server_fqdn }}/account.key"
+        account_email: "{{ email }}"
+        csr: "{{ cert_dir }}/{{ server_fqdn }}/{{ server_fqdn }}.csr"
+        dest: "{{ cert_dir }}/{{ server_fqdn }}/{{ server_fqdn }}.crt"
+        acme_directory: https://acme-v02.api.letsencrypt.org/directory
+        acme_version: 2
+        terms_agreed: true
+        # remaining_days: 30
+        # force: true
+      register: acme_challenge
+
+    - name: create directory for token file
+      ansible.builtin.file:
+        state: directory
+        path: "/var/www/html/{{ acme_challenge['challenge_data'][server_fqdn]['http-01']['resource'] | ansible.builtin.dirname }}"
+      when: acme_challenge is changed and server_fqdn in acme_challenge['challenge_data']
+
+    - name: (5) create token file to server
+      ansible.builtin.copy:
+        dest: "/var/www/html/{{ acme_challenge['challenge_data'][server_fqdn]['http-01']['resource'] }}"
+        content: "{{ acme_challenge['challenge_data'][server_fqdn]['http-01']['resource_value'] }}"
+      when: acme_challenge is changed and server_fqdn in acme_challenge['challenge_data']
+
+    - name: (6) validated challenge and retrieve certificate
+      community.crypto.acme_certificate:
+        account_key_src: "{{ cert_dir }}/{{ server_fqdn }}/account.key"
+        account_email: "{{ email }}"
+        csr: "{{ cert_dir }}/{{ server_fqdn }}/{{ server_fqdn }}.csr"
+        dest: "{{ cert_dir }}/{{ server_fqdn }}/{{ server_fqdn }}.crt"
+        acme_directory: https://acme-v02.api.letsencrypt.org/directory
+        acme_version: 2
+        terms_agreed: true
+        data: "{{ acme_challenge }}"
+        # remaining_days: 30
+        # force: true
+
+    - name: replace ssl.conf configure
+      ansible.builtin.replace:
+        path: /etc/httpd/conf.d/ssl.conf
+        regexp: "^{{ item.key }}.*"
+        replace: "{{ item.key }} {{ item.file }}"
+      loop:
+        - key: SSLCertificateFile
+          file: "{{ cert_dir }}/{{ server_fqdn }}/{{ server_fqdn }}.crt"
+        - key: SSLCertificateKeyFile
+          file: "{{ cert_dir }}/{{ server_fqdn }}/{{ server_fqdn }}.key"
+
+    - name: restart httpd
+      ansible.builtin.service:
+        name: httpd
+        state: restarted

@@ -1,0 +1,17 @@
+---
+- hosts: linux
+  gather_facts: false
+  become: true
+
+  tasks:
+    - name: SELinux set to enforcing
+      ansible.posix.selinux:
+        policy: targeted
+        # state: enforcing
+        state: permissive
+        # state: disabled
+      register: selinux_result
+
+    - name: reboot os if required
+      ansible.builtin.reboot:
+      when: selinux_result.reboot_required

@@ -1,0 +1,47 @@
+---
+- hosts: linux
+  gather_facts: true
+  tasks:
+    - name: create disk partition for lvm
+      community.general.parted:
+        device: /dev/sdb
+        number: 1
+        flags:
+          - lvm
+        state: present
+
+    - name: create volume group
+      community.general.lvg:
+        vg: example_group
+        pvs:
+          - /dev/sdb1
+        state: present
+
+    - name: create logical volume
+      community.general.lvol:
+        vg: example_group
+        lv: example_lv
+        size: 100%FREE
+
+#    - name: resize logical volume
+#      community.general.filesystem:
+#        fstype: xfs
+#        dev: /dev/rhel/root
+#        resizefs: true
+
+#    - name: set pvs variable
+#      ansible.builtin.set_fact:
+#        pvs: >-
+#          {{ pvs | default([])
+#            + [item.key]
+#          }}
+#      loop: "{{ ansible_facts.lvm.pvs | dict2items }}"
+#      when:
+#        - item.value.vg == "rhel"
+#
+#    - name: add pvs for extending
+#      ansible.builtin.set_fact:
+#        pvs: "{{ pvs + ['/dev/sdb1'] }}"
+#      when:
+#        - "'/dev/sdb1' not in ansible_facts.lvm.pvs.keys()"
+

@@ -1,0 +1,32 @@
+---
+- hosts: linux
+  gather_facts: false
+  become: true
+
+  tasks:
+    - name: configure nic
+      community.general.nmcli:
+        type: ethernet
+        conn_name: ens224
+        ip4: "{{ ens224_addr }}/{{ ens224_mask }}"
+        dns4: 172.16.1.0
+        routes4:
+          - "172.29.0.0/24 172.16.1.3"
+        state: present
+      notify:
+        - update configure
+
+    # - name: add static route
+    #   community.general.nmcli:
+    #     type: ethernet
+    #     conn_name: ens224
+    #     routes4:
+    #       - "172.29.0.0/24 172.16.1.3"
+    #     state: present
+    #     # state: absent
+    #   notify:
+    #     - update configure
+
+  handlers:
+    - name: update configure
+      ansible.builtin.command: nmcli con up ens224

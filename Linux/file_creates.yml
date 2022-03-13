@@ -1,0 +1,79 @@
+---
+- hosts: linux
+  gather_facts: false
+  become: true
+
+  tasks:
+    # ディレクトリ作成
+    - name: create directory
+      ansible.builtin.file:
+        path: /var/tmp/ansible-work
+        mode: "0755"
+        state: directory
+        owner: app-user
+        group: app-group
+
+    # symlink作成
+    - name: create symlink
+      ansible.builtin.file:
+        dest: /var/tmp/ansible-work/bin
+        src: /usr/local/bin
+        state: link
+
+    # 空file作成
+    - name: create file
+      ansible.builtin.file:
+        path: /var/tmp/ansible-work/touch
+        mode: "0644"
+        state: touch
+        # modification_time: "202103311220.01"
+        # access_time: "202103311220.01"
+        # modification_time: preserve
+        # access_time: preserve
+
+    # コントロールノードのファイルを転送
+    - name: copy file to managed node
+      ansible.builtin.copy:
+        src: sample.txt
+        dest: /var/tmp/ansible-work
+        owner: app-user
+        group: app-group
+        mode: '0664'
+
+    # インラインでコピーする内容を記述
+    - name: copy file to managed node
+      ansible.builtin.copy:
+        content: |
+          hello ansible
+          {{ lookup('ansible.builtin.env', 'HOSTNAME') }}
+          {% for host in ansible_play_hosts_all %}
+          {{ hostvars[host].inventory_hostname }}
+          {% endfor %}
+        dest: /var/tmp/ansible-work/inline_copy.txt
+        owner: app-user
+        group: app-group
+        mode: '0664'
+
+    - name: create file by template
+      ansible.builtin.template:
+        src: template_sample.txt.j2
+        dest: /var/tmp/ansible-work/template_sample.txt
+        owner: app-user
+        group: app-group
+        mode: '0664'
+
+    - name: download from www
+      ansible.builtin.get_url:
+        url: https://github.com/docker/compose/releases/download/1.29.2/docker-compose-Linux-x86_64
+        dest: /usr/local/bin/docker-compose
+        owner: root
+        group: root
+        mode: '0755'
+
+    # リポジトリのclone
+    - name: clone git repository
+      ansible.builtin.git:
+        repo: https://github.com/ansible/ansible.git
+        dest: /usr/local/src/ansible
+        # version: v2.11.0     # tag
+        version: stable-2.11  # branch

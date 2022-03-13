@@ -1,0 +1,79 @@
+---
+- hosts: private_www
+  gather_facts: false
+  become: true
+
+  tasks:
+    - name: install httpd
+      ansible.builtin.dnf:
+        name:
+          - httpd
+        state: present
+
+    - name: enable authconfig
+      ansible.builtin.replace:
+        path: /etc/httpd/conf/httpd.conf
+        regexp: ^(\s*AllowOverride).*
+        replace: \1 AuthConfig
+        after: <Directory "/var/www/html">
+        before: </Directory>
+        validate: httpd -t -f %s
+
+    - name: firewalld (service)
+      ansible.posix.firewalld:
+        service: "{{ item }}"
+        permanent: true
+        state: enabled
+        immediate: true
+      loop:
+        - http
+
+    - name: create directory
+      ansible.builtin.file:
+        state: directory
+        path: /var/www/html/auth
+
+    - name: create content
+      ansible.builtin.copy:
+        dest: /var/www/html/auth/sample.html
+        content: |
+          <html>
+          <body>
+          <h1>hello ansible</h1>
+          </body>
+          </html>
+        mode: "0644"
+
+    - name: start httpd
+      ansible.builtin.systemd:
+        name: httpd
+        state: started
+        enabled: true
+
+    - name: check accecc http
+      ansible.builtin.debug:
+        msg: "{{ lookup('ansible.builtin.url', 'http://' + ansible_host + '/auth/sample.html') }}"
+
+    - name: create htpasswd
+      community.general.htpasswd:
+        path: /var/www/html/auth/.htpasswd
+        name: www-user
+        password: 'password'
+        mode: "0644"
+
+    - name: create htaccess
+      ansible.builtin.copy:
+        dest: /var/www/html/auth/.htaccess
+        content: |
+          AuthType Basic
+          Authname "htpasswd sample"
+          AuthUserfile /var/www/html/auth/.htpasswd
+          AuthGroupFile /dev/null
+          require valid-user
+        mode: "0644"
+
+    - name: check accecc http
+      ansible.builtin.debug:
+        msg: "{{ lookup('ansible.builtin.url', 'http://' + ansible_host + '/auth/sample.html',
+                                                username='www-user',
+                                                password='password') }}"

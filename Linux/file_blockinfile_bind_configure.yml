@@ -1,0 +1,16 @@
+---
+- hosts: dnsserver
+  gather_facts: false
+  become: true
+
+  tasks:
+    - name: append zonefile include
+      ansible.builtin.blockinfile:
+        path: /etc/named.conf
+        marker: // example.org zone {mark}
+        block: |
+          zone "example.org" {
+              type master;
+              file "/etc/named/named.example.zones";
+          };
+        validate: named-checkconf %s

@@ -1,0 +1,12 @@
+---
+- hosts: linux
+  gather_facts: false
+  become: true
+
+  tasks:
+    - name: lineinfile sample
+      ansible.builtin.lineinfile:
+        path: /etc/sudoers
+        regexp: '^%wheel\s+ALL='
+        line: '%wheel ALL=(ALL) NOPASSWD: ALL'
+        validate: /usr/sbin/visudo -c -f %s

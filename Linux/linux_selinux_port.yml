@@ -1,0 +1,13 @@
+---
+- hosts: fedora
+  gather_facts: false
+  become: true
+
+  tasks:
+    - name: allow tcp port 8086,8087 to http
+      community.general.seport:
+        ports:
+          - 8086
+          - 8087
+        proto: tcp
+        setype: http_port_t

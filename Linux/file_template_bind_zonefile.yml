@@ -1,0 +1,60 @@
+---
+- hosts: dnsserver
+  gather_facts: false
+  become: true
+
+  tasks:
+    - name: install packaged
+      ansible.builtin.dnf:
+        name:
+          - bind
+          - bind-utils  # use dig
+        state: present
+
+    # - name: start bind
+    #   ansible.builtin.systemd:
+    #     name: named
+    #     state: started
+    #     enabled: true
+
+    - name: firewalld (service)
+      ansible.posix.firewalld:
+        service: dns
+        permanent: true
+        state: enabled
+        immediate: true
+
+- hosts: linux_all
+  gather_facts: true
+  become: true
+  name: gather facts play
+
+- hosts: dnsserver
+  gather_facts: false
+  become: true
+  vars:
+    serial: "{{ lookup('ansible.builtin.pipe', 'date +%Y%m%d') + '01' }}"
+
+  tasks:
+    - name: create zonefile
+      ansible.builtin.template:
+        # src: templates/named.example.zones_facts.j2
+        src: templates/named.example.zones.j2
+        dest: /etc/named/named.example.zones
+        group: named
+        mode: "0644"
+
+    - name: append zonefile include
+      ansible.builtin.blockinfile:
+        path: /etc/named.conf
+        marker: // example.org zone {mark}
+        block: |
+          zone "example.org" {
+              type master;
+              file "/etc/named/named.example.zones";
+          };
+
+    - name: restart bind
+      ansible.builtin.systemd:
+        name: named
+        state: restarted

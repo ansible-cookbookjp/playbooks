@@ -1,0 +1,24 @@
+---
+- hosts: linux
+  gather_facts: false
+  become: true
+
+  tasks:
+    - name: create directory
+      ansible.builtin.file:
+        path: /opt/web
+        mode: "0755"
+        state: directory
+        owner: root
+        group: root
+
+    - name: SELinux set context
+      community.general.sefcontext:
+        setype: httpd_sys_content_t
+        target: '/opt/web(/.*)?'
+      notify:
+        - restore new SELinux context
+
+  handlers:
+    - name: restore new SELinux context
+      ansible.builtin.command: restorecon -R /opt/web

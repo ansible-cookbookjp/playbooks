@@ -1,0 +1,34 @@
+---
+- hosts: linux
+  gather_facts: true
+  gather_subset:
+    - min
+    - network
+
+  tasks:
+    - name: create directory for ssh keypair on localhost
+      ansible.builtin.file:
+        state: directory
+        path: "{{ lookup('ansible.builtin.env','HOME') }}/.ssh/"
+        mode: 0700
+      delegate_to: localhost
+      run_once: true
+
+    - name: create key pair
+      community.crypto.openssh_keypair:
+        path: "{{ lookup('ansible.builtin.env','HOME') }}/.ssh/id_rsa_ansible"
+      delegate_to: localhost
+      run_once: true
+
+    - name: authorize public key
+      ansible.posix.authorized_key:
+        user: "{{ ansible_env.USER }}"
+        key: "{{ lookup('ansible.builtin.file', lookup('ansible.builtin.env', 'HOME') + '/.ssh/id_rsa_ansible.pub' ) }}"
+
+    - name: ssh user config
+      community.general.ssh_config:
+        user: "{{ ansible_env.USER }}"
+        host: "{{ inventory_hostname }}"
+        hostname: "{{ ansible_facts.default_ipv4.address }}"
+        identity_file: "{{ lookup('ansible.builtin.env', 'HOME') + '/.ssh/id_rsa_ansible' }}"
+      delegate_to: localhost

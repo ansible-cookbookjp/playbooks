@@ -1,0 +1,31 @@
+---
+- hosts: linux
+  gather_facts: false
+  become: true
+
+  tasks:
+    - name: allow httpd access
+      ansible.posix.firewalld:
+        service: http
+        state: enabled
+        permanent: true
+        immediate: true
+
+    - name: allow port number access
+      ansible.posix.firewalld:
+        port: "{{ item }}"
+        state: enabled
+        permanent: true
+        immediate: true
+      loop:
+        - 8080/tcp
+        - 6443/tcp
+        - 2379-2380/tcp
+
+    - name: ens224 set to trusted zone
+      ansible.posix.firewalld:
+        zone: trusted
+        interface: ens224
+        state: enabled
+        permanent: true
+        immediate: true

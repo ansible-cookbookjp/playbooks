@@ -1,0 +1,5 @@
+hello ansible
+{{ lookup('ansible.builtin.env', 'HOSTNAME') }}
+{% for host in ansible_play_hosts_all %}
+{{ host }}
+{% endfor %}

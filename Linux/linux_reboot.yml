@@ -1,0 +1,9 @@
+---
+- hosts: linux
+  gather_facts: false
+  become: true
+
+  tasks:
+    - name: reboot linux
+      ansible.builtin.reboot:
+        # reboot_timeout: 1200

@@ -1,0 +1,18 @@
+---
+- hosts: linux
+  gather_facts: false
+  become: true
+
+  tasks:
+    - name: configure sysctl
+      ansible.posix.sysctl:
+        name: net.ipv4.ip_forward
+        value: "0"
+        state: present
+        # sysctl_set: false  # default
+        # reload: true       # default
+
+        # sysctl_file: /etc/sysctl.d/k8s.conf
+
+        reload: false
+        sysctl_set: true

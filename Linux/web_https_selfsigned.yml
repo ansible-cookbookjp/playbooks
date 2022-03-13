@@ -1,0 +1,94 @@
+---
+- hosts: private_www
+  gather_facts: false
+  become: true
+
+  vars:
+    cert_dir: /opt/self-cert
+    server_fqdn: ansible.example.org
+
+  tasks:
+    - name: install httpd
+      ansible.builtin.dnf:
+        name:
+          - httpd
+          - mod_ssl
+        state: present
+
+    - name: firewalld (service)
+      ansible.posix.firewalld:
+        service: "{{ item }}"
+        permanent: true
+        state: enabled
+        immediate: true
+      loop:
+        - http
+        - https
+
+    - name: create directory for http content
+      ansible.builtin.file:
+        state: directory
+        path: /var/www/html/sample
+
+    - name: create http content
+      ansible.builtin.copy:
+        dest: /var/www/html/sample/sample.html
+        content: |
+          <html>
+          <body>
+          <h1>hello ansible</h1>
+          </body>
+          </html>
+        mode: "0644"
+
+    - name: create directory for cert keys
+      ansible.builtin.file:
+        path: "{{ cert_dir }}"
+        mode: "0755"
+        state: directory
+        owner: root
+        group: root
+
+    - name: create server key
+      community.crypto.openssl_privatekey:
+        path: "{{ cert_dir }}/server.key"
+
+    - name: create csr
+      community.crypto.openssl_csr:
+        privatekey_path: "{{ cert_dir }}/server.key"
+        path: "{{ cert_dir }}/server.csr"
+        common_name: "{{ server_fqdn }}"
+
+    - name: generate certificate
+      community.crypto.x509_certificate:
+        path: "{{ cert_dir }}/server.crt"
+        csr_path: "{{ cert_dir }}/server.csr"
+        privatekey_path: "{{ cert_dir }}/server.key"
+        provider: selfsigned
+
+    - name: replace ssl.conf configure
+      ansible.builtin.replace:
+        path: /etc/httpd/conf.d/ssl.conf
+        regexp: "^{{ item.key }}.*"
+        replace: "{{ item.key }} {{ item.file }}"
+      loop:
+        - key: SSLCertificateFile
+          file: "{{ cert_dir }}/server.crt"
+        - key: SSLCertificateKeyFile
+          file: "{{ cert_dir }}/server.key"
+
+    - name: restart httpd
+      ansible.builtin.systemd:
+        name: httpd
+        state: restarted
+        enabled: true
+
+    - name: fetch server crt
+      ansible.builtin.fetch:
+        src: "{{ cert_dir }}/server.crt"
+        dest: /var/tmp/ansible-work/{{ server_fqdn }}.crt
+        flat: true
+    - name: check accecc http
+      ansible.builtin.debug:
+        msg: "{{ lookup('ansible.builtin.url', 'https://' + server_fqdn + '/sample/sample.html',
+                                                ca_path='/var/tmp/ansible-work/' + server_fqdn + '.crt') }}"

@@ -1,0 +1,24 @@
+---
+- hosts: linux_all
+  gather_facts: false
+  become: true
+
+  tasks:
+    - name: cron to user
+      ansible.builtin.cron:
+        name: sample_cron_conf
+        minute: "0"
+        hour: "*"
+        job: "date >> /tmp/cron-date-test.log"
+        # user: admin-user
+        # write to /var/spool/cron/<username>
+
+    - name: cron conf with file
+      ansible.builtin.cron:
+        name: cron_conf with cron_file
+        minute: "*/15"
+        hour: "*"
+        job: "date >> /tmp/cron-date-file.log"
+        cron_file: ansible_sample
+        user: app-user
+        # write to /etc/cron.d/ansible_sample

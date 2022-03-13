@@ -1,0 +1,32 @@
+---
+- hosts: linux
+  gather_facts: true
+  gather_subset:
+    - min
+    - network
+
+  tasks:
+    - name: create directory for ssh keypair
+      ansible.builtin.file:
+        state: directory
+        path: "{{ ansible_env.HOME }}/.ssh/"
+        mode: 0700
+
+    - name: create key pair
+      community.crypto.openssh_keypair:
+        path: "{{ ansible_env.HOME }}/.ssh/id_rsa"
+      register: openssh_keypair_result
+
+    - name: authorize public key with managed nodes
+      ansible.posix.authorized_key:
+        user: "{{ ansible_env.USER }}"
+        key: "{{ hostvars[item].openssh_keypair_result.public_key }}"
+      loop: "{{ ansible_play_hosts_all }}"
+
+    - name: ssh user config
+      community.general.ssh_config:
+        host: "{{ item }}"
+        user: "{{ hostvars[item].ansible_env.USER }}"
+        hostname: "{{ hostvars[item].ansible_facts.default_ipv4.address }}"
+        identity_file: "{{ ansible_env.HOME }}/.ssh/id_rsa"
+      loop: "{{ ansible_play_hosts_all }}"

@@ -1,0 +1,49 @@
+---
+- hosts: linux
+  gather_facts: true
+  become: true
+
+  tasks:
+    - name: install httpd
+      ansible.builtin.dnf:
+        name:
+          - httpd
+        state: present
+
+    - name: install squid (with fixed version)
+      ansible.builtin.dnf:
+        name:
+          - squid-7:4.4-4.*
+        state: present
+      run_once: true
+
+- hosts: linux_apt
+  gather_facts: true
+  become: true
+
+  tasks:
+    - name: install httpd
+      ansible.builtin.apt:
+        name:
+          - apache2
+        state: present
+
+- hosts: linux_all
+  gather_facts: true
+  become: true
+
+  # このプレイのタスクは、上二つのプレイのタスクと同じものです
+  tasks:
+    - name: install httpd (apt)
+      ansible.builtin.apt:
+        name:
+          - apache2
+        state: present
+      when: ansible_facts.os_family == 'Debian'
+
+    - name: install httpd (dnf)
+      ansible.builtin.dnf:
+        name:
+          - httpd
+        state: present
+      when: ansible_facts.os_family == 'RedHat'
