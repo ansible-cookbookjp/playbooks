@@ -1,0 +1,20 @@
+---
+- hosts: sv
+  gather_facts: false
+
+  tasks:
+    - name: task1
+      ansible.builtin.debug:
+        msg: this is task1
+
+    - name: task2
+      ansible.builtin.debug:
+        msg: this is task2
+
+    - name: task3
+      ansible.builtin.debug:
+        msg: this is task3
+
+    - name: task4
+      ansible.builtin.debug:
+        msg: this is task4

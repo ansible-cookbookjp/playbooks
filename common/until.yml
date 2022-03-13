@@ -1,0 +1,23 @@
+---
+- hosts: docker
+  gather_facts: false
+
+  tasks:
+    - name: deploy container
+      community.docker.docker_container:
+        name: http_app
+        image: heavy_http_app:latest
+        published_ports:
+          - 8080:80
+
+    - name: wait for container "healthy"
+      community.docker.docker_container_info:
+        name: http_app
+      register: httpapp_info_result
+      until: httpapp_info_result.container.State.Health.Status == "healthy"
+      retries: 10
+      delay: 5
+
+    - name: print register value
+      debug:
+        msg: "{{ httpapp_info_result.container.State.Health.Status }}"

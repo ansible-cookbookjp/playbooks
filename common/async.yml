@@ -1,0 +1,21 @@
+---
+- hosts: all
+  gather_facts: false
+  tasks:
+    - name: execute the wait command to wait 15 sec
+      ansible.builtin.command: /bin/sleep 15
+      poll: 0
+      async: 30
+      register: task_status
+
+    - name: display task_status
+      debug:
+        msg: "{{ task_status }}"
+
+    - name: wait until the wait command is finished
+      ansible.builtin.async_status:
+        jid: "{{ task_status.ansible_job_id }}"
+      register: job_result
+      until: job_result.finished
+      retries: 60
+      delay: 10

@@ -1,0 +1,20 @@
+---
+- hosts: sv
+  gather_facts: false
+
+  tasks:
+    - name: task1 never
+      ansible.builtin.debug:
+        msg: task1
+      tags:
+        - never
+
+    - name: task2 always
+      ansible.builtin.debug:
+        msg: task2
+      tags:
+        - always
+
+    - name: task3 untagged
+      ansible.builtin.debug:
+        msg: task3

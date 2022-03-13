@@ -1,0 +1,18 @@
+---
+- hosts: localhost
+  gather_facts: false
+  connection: ansible.builtin.local
+
+  tasks:
+    - name: filter ipaddr
+      ansible.builtin.debug:
+        msg:
+          - "{{ '192.168.0.1/24' | ansible.netcommon.ipaddr('address') }}"
+          - "{{ '192.168.0.1/24' | ansible.netcommon.ipaddr('network') }}"
+          - "{{ '192.168.0.1/24' | ansible.netcommon.ipaddr('netmask') }}"
+          - "{{ '192.168.0.1/24' | ansible.netcommon.ipaddr('prefix') }}"
+          - "{{ '192.168.0.0/24' | ansible.netcommon.ipaddr('size') }}"
+          - "{{ '192.168.0.0/24' | ansible.netcommon.ipaddr('next_usable') }}"
+          - "{{ '192.168.0.0/24' | ansible.netcommon.ipaddr('last_usable') }}"
+          - "{{ '192.168.0.0/24' | ansible.netcommon.ipaddr('wildcard') }}"
+          - "{{ '192.168.0.0/24' | ansible.netcommon.ipaddr('network_wildcard') }}"

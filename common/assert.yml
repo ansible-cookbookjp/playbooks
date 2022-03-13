@@ -1,0 +1,30 @@
+---
+- hosts: sv
+  gather_facts: false
+
+  # チェック対象の変数の定義
+  vars:
+    location: Tokyo
+    year: 2020
+    state: present
+
+  tasks:
+    # 変数が定義済みであることをチェック
+    - name: assert variable definition
+      ansible.builtin.assert:
+        that:
+          - location is defined
+          - year is defined
+          - state is defined
+
+    # 文字列と数値の値をチェック
+    - name: assert value
+      ansible.builtin.assert:
+        that:
+          - location == "Tokyo"       # Tokyo であるこ
+          - year >= 2020              # 2020 以上であること
+          - state in expected_states   # present か absent のいずれかであること
+      vars:
+        expected_states:  # 期待するstateの一覧
+          - present
+          - absent

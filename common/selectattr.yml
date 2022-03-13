@@ -1,0 +1,22 @@
+---
+- hosts: sv
+  gather_facts: false
+
+  vars:
+    # 抽出元データ
+    branches:
+      - id: 1
+        name: tokyo
+        network: 10.1.0.0/16
+      - id: 2
+        name: nagoya
+        network: 10.2.0.0/16
+      - id: 3
+        name: osaka
+        network: 10.3.0.0/16
+
+  tasks:
+    # 抽出結果の表示
+    - name: select branch
+      ansible.builtin.debug:
+        msg: "{{ branches | selectattr('name', '==', 'nagoya') | list }}"

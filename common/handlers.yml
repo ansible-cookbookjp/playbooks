@@ -1,0 +1,22 @@
+---
+- hosts: localhost
+  gather_facts: false
+  connection: ansible.builtin.local
+
+  tasks:
+    - name: send command
+      ansible.builtin.command: echo "CookBook"
+      register: res_command
+      notify:
+        - handler1
+        - after debug2
+
+  handlers:
+    - name: after debug1
+      ansible.builtin.debug:
+        msg: "{{ res_command['stdout_lines'] }}"
+      listen: "handler1"
+
+    - name: after debug2
+      ansible.builtin.debug:
+        msg: "handler2"
