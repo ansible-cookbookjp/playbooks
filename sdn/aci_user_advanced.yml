@@ -1,0 +1,35 @@
+---
+- hosts: aci
+  gather_facts: false
+  connection: ansible.builtin.local
+  vars:
+    aaa_user: TestUser001
+    aaa_password: P@ssw0rd!!!
+
+  tasks:
+    - name: add a user
+      cisco.aci.aci_aaa_user:
+        state: present
+        aaa_user: "{{ aaa_user }}"
+        aaa_password: "{{ aaa_password }}"
+        aaa_password_update_required: false
+        expiration: never
+        expires: false
+
+    - name: attach admin role
+      cisco.aci.aci_rest:
+        method: post
+        path: "api/node/mo/uni/userext/user-{{ aaa_user }}/userdomain-all.json"
+        content:
+          aaaUserDomain:
+            attributes:
+              dn: "uni/userext/user-{{ aaa_user }}/userdomain-all"
+              name: "all"
+              rn: "userdomain-all"
+            children:
+              - aaaUserRole:
+                  attributes:
+                    dn: "uni/userext/user-{{ aaa_user }}/userdomain-all/role-admin"
+                    name: "admin"
+                    privType: "writePriv"
+                    rn: "role-admin"

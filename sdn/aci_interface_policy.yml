@@ -1,0 +1,29 @@
+---
+- hosts: aci
+  gather_facts: false
+  connection: ansible.builtin.local
+  vars:
+    policy_group: Sample_APG
+
+  tasks:
+    - name: create interface policy link level
+      cisco.aci.aci_interface_policy_link_level:
+        state: present
+        link_level_policy: 1GigAuto
+        auto_negotiation: true
+        speed: 1G
+
+    - name: create interface policy cdp
+      cisco.aci.aci_interface_policy_cdp:
+        state: present
+        cdp_policy: CDP_Enable
+        admin_state: true
+
+    - name: create interfae policy group leaf access
+      cisco.aci.aci_interface_policy_leaf_policy_group:
+        state: present
+        lag_type: leaf
+        policy_group: "{{ policy_group }}"
+        link_level_policy: 1GigAuto
+        cdp_policy: CDP_Enable
+        aep: "{{ aep }}"

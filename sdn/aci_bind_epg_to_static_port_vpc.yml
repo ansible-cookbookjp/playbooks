@@ -1,0 +1,24 @@
+---
+- hosts: aci
+  gather_facts: false
+  connection: ansible.builtin.local
+  vars:
+    epg: Vl500_EPG
+    leaf: 101-102
+    interface: Sample_VPC
+    vlan_id: 500
+
+  tasks:
+    - name: bind epg to vpc_port
+      cisco.aci.aci_static_binding_to_epg:
+        state: present
+        tenant: "{{ tenant }}"
+        ap: "{{ ap }}"
+        epg: "{{ epg }}"
+        encap_id: "{{ vlan_id }}"
+        deploy_immediacy: lazy
+        interface_mode: native
+        interface_type: vpc
+        pod_id: 1
+        leafs: "{{ leaf }}"
+        interface: "{{ interface }}"

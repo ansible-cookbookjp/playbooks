@@ -1,0 +1,44 @@
+---
+- hosts: aci
+  gather_facts: false
+  connection: ansible.builtin.local
+  vars:
+    interface_profile: Lf101-102_IntProf
+    interface_selector: Lf101-102_IntSele
+    policy_group: Sample_VPC
+    leaf_profile: Leaf101-102_SwitchProfile
+    access_ports:
+      - 25
+      - 26
+
+  tasks:
+    - name: create leaf interface profile
+      cisco.aci.aci_interface_policy_leaf_profile:
+        state: present
+        type: leaf
+        interface_profile: "{{ interface_profile }}"
+
+    - name: create interface selector
+      cisco.aci.aci_access_port_to_interface_policy_leaf_profile:
+        state: present
+        interface_profile: "{{ interface_profile }}"
+        access_port_selector: "ethernet1_{{ item }}"
+        policy_group: "{{ policy_group }}"
+        interface_type: vpc
+      loop: "{{ access_ports }}"
+
+    - name: bind access port to interface selector
+      cisco.aci.aci_access_port_block_to_access_port:
+        interface_profile: "{{ interface_profile }}"
+        access_port_selector: "ethernet1_{{ item }}"
+        port_blk: "blk_{{ item }}"
+        from_port: "{{ item }}"
+        to_port: "{{ item }}"
+        state: present
+      loop: "{{ access_ports }}"
+
+    - name: bind interface profile to switch policy
+      cisco.aci.aci_interface_selector_to_switch_policy_leaf_profile:
+        state: present
+        leaf_profile: "{{ leaf_profile }}"
+        interface_selector: "{{ interface_profile }}"

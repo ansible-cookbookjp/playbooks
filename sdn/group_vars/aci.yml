@@ -1,0 +1,6 @@
+---
+tenant: SampleTenant
+ap: SampleApp_AP
+vrf: Sample_VRF
+aep: Sample_AAEP
+domain: Sample_PhyDom

@@ -1,0 +1,27 @@
+---
+- hosts: aci
+  gather_facts: false
+  connection: ansible.builtin.local
+  vars:
+    epg: Vl500_EPG
+    provider_contract: web_http_CT
+    consumer_contract: web_http_CT
+
+  tasks:
+    - name: attached provider contract to epg
+      cisco.aci.aci_epg_to_contract:
+        state: present
+        tenant: "{{ tenant }}"
+        ap: "{{ ap }}"
+        epg: "{{ epg }}"
+        contract: "{{ provider_contract }}"
+        contract_type: provider
+
+    - name: attached consumer contract to epg
+      cisco.aci.aci_epg_to_contract:
+        state: present
+        tenant: "{{ tenant }}"
+        ap: "{{ ap }}"
+        epg: "{{ epg }}"
+        contract: "{{ consumer_contract }}"
+        contract_type: consumer

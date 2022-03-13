@@ -1,0 +1,22 @@
+---
+- hosts: aci
+  gather_facts: false
+  connection: ansible.builtin.local
+  vars:
+    bd: Vl500_BD
+
+  tasks:
+    - name: create bridge domain
+      cisco.aci.aci_bd:
+        state: present
+        tenant: "{{ tenant }}"
+        bd: "{{ bd }}"
+        vrf: "{{ vrf }}"
+        bd_type: ethernet
+        enable_routing: true
+        ip_learning: true
+        arp_flooding: true
+        l2_unknown_unicast: flood
+        l3_unknown_multicast: flood
+        endpoint_move_detect: garp
+        endpoint_clear: true

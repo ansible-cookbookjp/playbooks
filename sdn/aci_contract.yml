@@ -1,0 +1,37 @@
+---
+- hosts: aci
+  gather_facts: false
+  connection: ansible.builtin.local
+  vars:
+    contract: web_http_CT
+    subject: filter_subject
+    filter: http_icmp_Filt
+
+  tasks:
+    # (1) コントラクトの作成
+    - name: create a contract
+      cisco.aci.aci_contract:
+        state: present
+        tenant: "{{ tenant }}"
+        contract: "{{ contract }}"
+        scope: tenant
+
+    # (2) サブジェクトの作成
+    - name: create a subject
+      cisco.aci.aci_contract_subject:
+        state: present
+        tenant: "{{ tenant }}"
+        contract: "{{ contract }}"
+        subject: "{{ subject }}"
+        reverse_filter: true
+        priority: unspecified
+
+    # (3) サブジェクトとフィルターの関連付け
+    - name: add a subject to filter binding
+      cisco.aci.aci_contract_subject_to_filter:
+        state: present
+        tenant: "{{ tenant }}"
+        filter: "{{ filter }}"
+        contract: "{{ contract }}"
+        subject: "{{ subject }}"
+        log: log

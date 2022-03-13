@@ -1,0 +1,32 @@
+---
+- hosts: aci
+  gather_facts: false
+  connection: ansible.builtin.local
+  vars:
+    filter: http_icmp_Filt
+
+  tasks:
+    - name: create a filter
+      cisco.aci.aci_filter:
+        state: present
+        tenant: "{{ tenant }}"
+        filter: "{{ filter }}"
+
+    - name: add a filter icmp entory
+      cisco.aci.aci_filter_entry:
+        state: present
+        tenant: "{{ tenant }}"
+        filter: "{{ filter }}"
+        entry: icmp
+        ether_type: ip
+        ip_protocol: icmp
+
+    - name: add a filter http entory
+      cisco.aci.aci_filter_entry:
+        state: present
+        tenant: "{{ tenant }}"
+        filter: "{{ filter }}"
+        entry: http
+        ether_type: ip
+        ip_protocol: tcp
+        dst_port: http

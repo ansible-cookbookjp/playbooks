@@ -1,0 +1,22 @@
+---
+- hosts: aci
+  gather_facts: false
+  connection: ansible.builtin.local
+  vars:
+    pod_id: 1
+    leaf: 101
+    eth:
+      - 1/21
+      - 1/22
+
+  tasks:
+    - name: Interface no shutdown
+      cisco.aci.aci_rest:
+        method: post
+        path: "/api/node/mo/uni/fabric/outofsvc.json"
+        content:
+          fabricRsOosPath:
+            attributes:
+              dn: "uni/fabric/outofsvc/rsoosPath-[topology/pod-{{ pod_id }}/paths-{{ leaf }}/pathep-[eth{{ item }}]]"
+              status: "deleted"
+      loop: "{{ eth }}"

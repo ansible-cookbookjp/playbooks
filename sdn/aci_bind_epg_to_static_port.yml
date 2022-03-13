@@ -1,0 +1,28 @@
+---
+- hosts: aci
+  gather_facts: false
+  connection: ansible.builtin.local
+  vars:
+    epg: Vl500_EPG
+    leaf: 101
+    interfaces:
+      - 1/1
+      - 1/2
+      - 1/3
+    vlan_id: 500
+
+  tasks:
+    - name: bind epg to static_port
+      cisco.aci.aci_static_binding_to_epg:
+        state: present
+        tenant: "{{ tenant }}"
+        ap: "{{ ap }}"
+        epg: "{{ epg }}"
+        encap_id: "{{ vlan_id }}"
+        deploy_immediacy: lazy
+        interface_mode: tagged
+        interface_type: switch_port
+        pod_id: 1
+        leafs: "{{ leaf }}"
+        interface: "{{ item }}"
+      loop: "{{ interfaces }}"

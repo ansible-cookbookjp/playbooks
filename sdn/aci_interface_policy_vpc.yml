@@ -1,0 +1,24 @@
+---
+- hosts: aci
+  gather_facts: false
+  connection: ansible.builtin.local
+  vars:
+    policy_group: Sample_VPC
+    lacp_policy: LACP_Active
+
+  tasks:
+    - name: create interface policy port channel
+      cisco.aci.aci_interface_policy_port_channel:
+        state: present
+        port_channel: "{{ lacp_policy }}"
+        mode: active
+
+    - name: create interfae policy group vpc
+      cisco.aci.aci_interface_policy_leaf_policy_group:
+        state: present
+        lag_type: node
+        policy_group: "{{ policy_group }}"
+        port_channel_policy: "{{ lacp_policy }}"
+        link_level_policy: 1GigAuto
+        cdp_policy: CDP_Enable
+        aep: "{{ aep }}"

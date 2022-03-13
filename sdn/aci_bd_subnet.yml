@@ -1,0 +1,17 @@
+---
+- hosts: aci
+  gather_facts: false
+  connection: ansible.builtin.local
+  vars:
+    bd: Vl500_BD
+    gateway: 192.168.0.1/24
+
+  tasks:
+    - name: add a subnet to bd
+      cisco.aci.aci_bd_subnet:
+        state: present
+        tenant: "{{ tenant }}"
+        bd: "{{ bd }}"
+        gateway: "{{ gateway | ansible.netcommon.ipaddr('address') }}"
+        mask: "{{ gateway | ansible.netcommon.ipaddr('prefix') }}"
+        scope: private

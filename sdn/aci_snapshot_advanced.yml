@@ -1,0 +1,11 @@
+---
+- hosts: aci
+  gather_facts: false
+  connection: ansible.builtin.local
+
+  tasks:
+    - name: create a latest snapshot
+      cisco.aci.aci_config_snapshot:
+        state: present
+        export_policy: APIC
+        max_count: 2

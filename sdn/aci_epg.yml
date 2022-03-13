@@ -1,0 +1,27 @@
+---
+- hosts: aci
+  gather_facts: false
+  connection: ansible.builtin.local
+  vars:
+    bd: Vl500_BD
+    epg: Vl500_EPG
+
+  tasks:
+    - name: create epg
+      cisco.aci.aci_epg:
+        state: present
+        tenant: "{{ tenant }}"
+        ap: "{{ ap }}"
+        bd: "{{ bd }}"
+        epg: "{{ epg }}"
+        preferred_group: false
+        priority: unspecified
+
+    - name: add epg to domain
+      cisco.aci.aci_epg_to_domain:
+        state: present
+        tenant: "{{ tenant }}"
+        ap: "{{ ap }}"
+        epg: "{{ epg }}"
+        domain: "{{ domain }}"
+        domain_type: phys

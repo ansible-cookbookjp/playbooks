@@ -1,0 +1,8 @@
+---
+- hosts: aci
+  gather_facts: false
+  connection: ansible.builtin.local
+
+  tasks:
+    - name: fetch aci system
+      cisco.aci.aci_system:

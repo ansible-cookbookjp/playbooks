@@ -1,0 +1,16 @@
+---
+- hosts: aci
+  gather_facts: false
+  connection: ansible.builtin.local
+
+  tasks:
+    - name: Query Faults
+      cisco.aci.aci_rest:
+        path: /api/node/class/faultInst.json
+        method: get
+      register: res_faults
+
+    - name: output csv file
+      ansible.builtin.template:
+        src: faults_to_csv.j2
+        dest: files/faults_result.csv

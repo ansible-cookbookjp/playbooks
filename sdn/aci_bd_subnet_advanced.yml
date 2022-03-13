@@ -1,0 +1,17 @@
+---
+- hosts: aci
+  gather_facts: false
+  connection: ansible.builtin.local
+
+  tasks:
+    - name: get the target subnet configured for the tenant
+      cisco.aci.aci_bd_subnet:
+        state: query
+        tenant: "{{ tenant }}"
+      register: result
+
+    - name: debug all subnet
+      debug:
+        msg: "{{ result['current'][0] | json_query(query_filter) | flatten(levels=1) }}"
+      vars:
+        query_filter: fvTenant.children[*].fvBD.children[*].fvSubnet.attributes.ip

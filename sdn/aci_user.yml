@@ -1,0 +1,17 @@
+---
+- hosts: aci
+  gather_facts: false
+  connection: ansible.builtin.local
+  vars:
+    aaa_user: TestUser001
+    aaa_password: P@ssw0rd!!!
+
+  tasks:
+    - name: add a user
+      cisco.aci.aci_aaa_user:
+        state: present
+        aaa_user: "{{ aaa_user }}"
+        aaa_password: "{{ aaa_password }}"
+        aaa_password_update_required: false
+        expiration: never
+        expires: false

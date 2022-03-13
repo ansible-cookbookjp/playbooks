@@ -1,0 +1,5 @@
+"severity","domain","code","rule","descr"
+{% for r in res_faults['imdata'] %}
+{% set faultInst = r['faultInst']['attributes'] %}
+"{{ faultInst['severity'] }}","{{ faultInst['domain'] }}","{{ faultInst['code'] }}","{{ faultInst['rule'] }}","{{ faultInst['descr'] }}"
+{% endfor %}
