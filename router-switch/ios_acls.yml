@@ -1,0 +1,45 @@
+---
+- hosts: rt
+  gather_facts: false
+
+  tasks:
+    # アクセスリストの定義
+    - name: define ACL
+      cisco.ios.ios_acls:
+        config:
+          - afi: ipv4
+            acls:
+              - name: 100
+                acl_type: extended
+                aces:
+                  - sequence: 10
+                    grant: permit
+                    protocol: tcp
+                    source:
+                      address: 10.2.1.0
+                      wildcard_bits: 0.0.0.255
+                    destination:
+                      address: 10.1.12.0
+                      wildcard_bits: 0.0.0.255
+                      port_protocol:
+                        eq: 22
+                  - sequence: 90
+                    grant: deny
+                    protocol: ip
+                    source:
+                      any: true
+                    destination:
+                      any: true
+        state: merged
+
+    # アクセスリストの適用
+    - name: apply ACL
+      cisco.ios.ios_acl_interfaces:
+        config:
+          - name: GigabitEthernet0/4
+            access_groups:
+              - afi: ipv4
+                acls:
+                  - name: 100
+                    direction: in
+        state: merged

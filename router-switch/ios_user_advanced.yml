@@ -1,0 +1,13 @@
+---
+- hosts: rt
+  gather_facts: false
+
+  tasks:
+    - name: specifies hashed password
+      cisco.ios.ios_user:
+        name: ansible
+        hashed_password:
+          type: 8   # PBKDF2
+          # type に応じたハッシュ化文字列
+          value: $8$xm0D2RT3ayddss$Alc4fB09KP1o9LC0yHJoMj/eP4fA3i1qJf8cDKSfkpk
+        privilege: 15

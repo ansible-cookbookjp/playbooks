@@ -1,0 +1,12 @@
+---
+- hosts: rt
+  gather_facts: false
+
+  tasks:
+    - name: add user
+      cisco.ios.ios_user:
+        name: ansible
+        configured_password: testpassword
+        privilege: 15
+        password_type: secret
+        state: present

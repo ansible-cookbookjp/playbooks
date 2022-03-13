@@ -1,0 +1,17 @@
+---
+- hosts: rt
+  gather_facts: false
+
+  tasks:
+    # descriptionの変更
+    - name: set interface description
+      cisco.ios.ios_interfaces:
+        config:
+          - name: GigabitEthernet0/3
+            description: changed_description
+            enabled: true
+
+    # running-configとstartup-configに差分がある場合に保存
+    - name: save config
+      cisco.ios.ios_config:
+        save_when: modified

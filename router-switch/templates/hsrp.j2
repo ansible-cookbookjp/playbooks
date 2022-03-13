@@ -1,0 +1,6 @@
+{% for c in hsrp_config %}
+interface {{ c.interface }}
+ standby version {{ c.version }}
+ standby {{ c.group }} ip {{ c.vip }}
+ standby {{ c.group }} priority {{ c.priority }}
+{% endfor %}

@@ -1,0 +1,13 @@
+---
+- hosts: rt
+  gather_facts: false
+
+  tasks:
+    # インターフェイスの基本設定
+    - name: set basic interface configuration by replaced
+      cisco.ios.ios_interfaces:
+        config:
+          - name: GigabitEthernet0/5
+            description: to_rt09
+            enabled: true
+        state: replaced

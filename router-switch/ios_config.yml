@@ -1,0 +1,15 @@
+---
+- hosts: rt
+  gather_facts: false
+
+  tasks:
+    # SNMPコミュニティ名の設定
+    - name: set snmp community name
+      cisco.ios.ios_config:
+        lines:
+          - "snmp-server community {{ item.community_name }} {{ item.privilege }}"
+      loop:
+        - community_name: public
+          privilege: RO
+        - community_name: secret
+          privilege: RW

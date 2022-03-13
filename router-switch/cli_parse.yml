@@ -1,0 +1,17 @@
+---
+- hosts: rt
+  gather_facts: false
+
+  tasks:
+    # (1) showコマンドの実行とパース
+    - name: exec and parse show command
+      ansible.utils.cli_parse:
+        command: show ip route
+        parser:
+          name: ansible.netcommon.ntc_templates
+      register: res_route
+
+    # (2) showコマンドのパース結果を表示
+    - name: debug parsed show commands
+      ansible.builtin.debug:
+        msg: "{{ res_route.parsed }}"

@@ -1,0 +1,21 @@
+---
+- hosts: rt
+  gather_facts: false
+
+  tasks:
+    - name: lldp run
+      cisco.ios.ios_lldp_global:
+        config:
+          enabled: true
+          holdtime: 30
+          reinit: 3
+          timer: 20
+        state: merged
+
+    - name: unset lldp interface
+      cisco.ios.ios_lldp_interfaces:
+        config:
+          - name: GigabitEthernet0/4
+            receive: false
+            transmit: false
+        state: merged

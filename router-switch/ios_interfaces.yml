@@ -1,0 +1,18 @@
+---
+- hosts: rt
+  gather_facts: false
+
+  tasks:
+    # インターフェイスの基本設定
+    - name: set basic interface configuration
+      cisco.ios.ios_interfaces:
+        config:
+          - name: GigabitEthernet0/4
+            enabled: true
+          - name: GigabitEthernet0/5
+            description: to_rt09
+            enabled: true
+            mtu: 1454
+            speed: 100
+            duplex: full
+        state: merged

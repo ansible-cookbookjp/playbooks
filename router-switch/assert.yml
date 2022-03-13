@@ -1,0 +1,31 @@
+---
+- hosts: rt
+  gather_facts: false
+
+  vars:
+    # (1) 期待するルートを定義
+    expected:
+      network: 10.1.11.0
+      mask: "24"
+      nexthop_ip: 10.1.1.1
+
+  tasks:
+    # (2) showコマンドの実行とパース
+    - name: exec and parse show command
+      ansible.utils.cli_parse:
+        command: show ip route
+        parser:
+          name: ansible.netcommon.ntc_templates
+      register: res_route
+
+    # (3) showコマンドの結果が期待する値と一致しているか比較
+    - name: assert nexthop
+      ansible.builtin.assert:
+        that:
+          - (filtered_mask | length) == 1
+          - filtered_mask[0].nexthop_ip == expected.nexthop_ip
+      vars:
+        filtered_network: |-
+          {{ res_route.parsed | selectattr('network', '==', expected.network) | list }}
+        filtered_mask: |-
+          {{ filtered_network | selectattr('mask', '==', expected.mask) | list }}

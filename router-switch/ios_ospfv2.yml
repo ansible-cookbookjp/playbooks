@@ -1,0 +1,27 @@
+---
+- hosts: rt
+  gather_facts: false
+
+  tasks:
+    # OSPFv2の設定
+    - name: set OSPFv2
+      cisco.ios.ios_ospfv2:
+        config:
+          processes:
+            - process_id: 1
+              network:
+                - address: 10.1.1.0
+                  wildcard_bits: 0.0.0.255
+                  area: 0
+        state: merged
+
+    # インターフェイスコストの設定
+    - name: set interface cost
+      cisco.ios.ios_ospf_interfaces:
+        config:
+          - name: GigabitEthernet0/3
+            address_family:
+              - afi: ipv4
+                cost:
+                  interface_cost: 100
+        state: merged

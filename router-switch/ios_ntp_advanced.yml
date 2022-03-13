@@ -1,0 +1,11 @@
+---
+- hosts: rt
+  gather_facts: false
+
+  tasks:
+    # NTPサーバ設定の削除
+    - name: set ntp server
+      cisco.ios.ios_ntp:
+        server: 192.168.1.3
+        source_int: Loopback0
+        state: absent

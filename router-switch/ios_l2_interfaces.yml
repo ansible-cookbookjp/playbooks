@@ -1,0 +1,19 @@
+---
+- hosts: sw
+  gather_facts: false
+
+  tasks:
+    # インターフェイスへのVLAN適用
+    - name: apply vlan to interfaces
+      cisco.ios.ios_l2_interfaces:
+        config:
+          - name: GigabitEthernet1/1
+            mode: access
+            access:
+              vlan: 10
+          - name: GigabitEthernet1/2
+            mode: trunk
+            trunk:
+              allowed_vlans: 10-20,30
+              encapsulation: dot1q
+        state: merged

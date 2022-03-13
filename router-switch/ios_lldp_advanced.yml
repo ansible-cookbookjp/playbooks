@@ -1,0 +1,8 @@
+---
+- hosts: rt
+  gather_facts: false
+
+  tasks:
+    - name: delete lldp global setting
+      cisco.ios.ios_lldp_global:
+        state: deleted

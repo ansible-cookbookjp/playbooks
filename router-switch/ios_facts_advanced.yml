@@ -1,0 +1,17 @@
+---
+- hosts: rt
+  gather_facts: false   # モジュールで収集するためここでは無効化
+
+  tasks:
+    # 指定したファクトを収集
+    - name: gather facts
+      cisco.ios.ios_facts:
+        gather_subset:
+          - hardware  # ハードウェアに関するファクトを収集
+        gather_network_resources:
+          - l3_interfaces   # L3に関するファクト収集
+
+    # バージョン表示
+    - name: debug version
+      ansible.builtin.debug:
+        msg: "{{ ansible_facts.net_version }}"  # 表示例  "15.9(3)M3"

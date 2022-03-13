@@ -1,0 +1,36 @@
+---
+- hosts: rt
+  gather_facts: false
+
+  tasks:
+    # (1) 設定変更前のrunning-config内容の保存
+    - name: show running-config (before)
+      cisco.ios.ios_command:
+        commands:
+          - show running-config
+      register: res_before_running_config
+
+    # (2) インターフェイスのdescriptionの変更
+    - name: set description
+      cisco.ios.ios_interfaces:
+        config:
+          - name: GigabitEthernet0/3
+            description: after_description
+
+    # (3) 設定変更後のrunning-config内容の保存
+    - name: show running-config (after)
+      cisco.ios.ios_command:
+        commands:
+          - show running-config
+      register: res_after_running_config
+
+    # (4) diffの表示
+    - name: show diff
+      ansible.utils.fact_diff:
+        before: "{{ res_before_running_config.stdout[0] }}"
+        after: "{{ res_after_running_config.stdout[0] }}"
+        plugin:
+          vars:
+            skip_lines:
+              - "^Current configuration.+$"
+              - "! Last configuration change at .+$"

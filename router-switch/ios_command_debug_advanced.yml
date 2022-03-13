@@ -1,0 +1,26 @@
+---
+- hosts: rt
+  gather_facts: false
+
+  vars:
+    # (1) 実行するshowコマンドの定義
+    show_commands:
+      - show running-config
+      - show version
+      - show interfaces
+      - show ip route
+
+  tasks:
+    # (2) showコマンドの実行
+    - name: exec show commands
+      cisco.ios.ios_command:
+        commands: "{{ show_commands }}"
+      register: res_show_commands
+
+    # (3) showコマンド結果の表示
+    - name: debug show commands
+      ansible.builtin.debug:
+        msg: "{{ res_show_commands.stdout[ansible_loop.index0] }}"  # stdout を指定
+      loop: "{{ show_commands }}"
+      loop_control:
+        extended: true

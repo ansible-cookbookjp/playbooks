@@ -1,0 +1,16 @@
+---
+- hosts: sw
+  gather_facts: false
+
+  tasks:
+    # VLAN設定
+    - name: set vlan
+      cisco.ios.ios_vlans:
+        config:
+          - vlan_id: 10
+            name: vlan10
+          - vlan_id: 20
+            name: vlan20
+            state: suspend  # suspend 状態にする
+            shutdown: enabled  # shutdown 状態にする
+        state: merged

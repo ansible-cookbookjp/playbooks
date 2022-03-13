@@ -1,0 +1,36 @@
+---
+- hosts: rt
+  gather_facts: false
+
+  tasks:
+    # BGP グローバル設定
+    - name: set BGP global
+      cisco.ios.ios_bgp_global:
+        config:
+          as_number: 65001
+          neighbor:
+            - address: 172.16.1.2
+              remote_as: 65002
+            - address: 172.16.2.2
+              remote_as: 65002
+        state: merged
+
+    # BGP ipv4 unicast 設定
+    - name: set BGP for ipv4 unicast
+      cisco.ios.ios_bgp_address_family:
+        config:
+          as_number: 65001
+          address_family:
+            - afi: ipv4
+              neighbor:
+                - address: 172.16.1.2
+                  activate: true
+                  route_maps:
+                    - name: ROUTE-MAP01
+                      in: true
+                - address: 172.16.2.2
+                  activate: true
+              network:
+                - address: 10.1.1.0
+                  mask: 255.255.255.0
+        state: merged

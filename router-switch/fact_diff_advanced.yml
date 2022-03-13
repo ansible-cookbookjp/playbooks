@@ -1,0 +1,54 @@
+---
+- hosts: rt
+  gather_facts: false
+
+  tasks:
+    # nested
+    - name: show diff 1
+      ansible.utils.fact_diff:
+        before: "{{ b }}"
+        after: "{{ a }}"
+      vars:
+        b:
+          k1: v1
+          k2: v2
+          k3:
+            k3_1: v3_1
+            k3_2: v3_2
+        a:
+          k1: v1
+          k2: v2
+          k3:
+            k3_1: v3_1
+            k3_9: v3_9
+
+    # list
+    - name: show diff 2
+      ansible.utils.fact_diff:
+        before: "{{ b }}"
+        after: "{{ a }}"
+      vars:
+        b:
+          - aa
+          - bb
+          - cc
+
+        a:
+          - aa
+          - bb
+          - zz
+
+    # text
+    - name: show diff 3
+      ansible.utils.fact_diff:
+        before: "{{ b }}"
+        after: "{{ a }}"
+      vars:
+        b: |-
+          111
+          222
+          333
+        a: |-
+          111
+          2222222
+          333

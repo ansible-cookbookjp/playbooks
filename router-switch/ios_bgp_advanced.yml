@@ -1,0 +1,9 @@
+---
+- hosts: rt
+  gather_facts: false
+
+  tasks:
+    # BGP グローバル設定の削除
+    - name: delete BGP global
+      cisco.ios.ios_bgp_global:
+        state: purged

@@ -1,0 +1,21 @@
+---
+- hosts: rt
+  gather_facts: false
+
+  tasks:
+    # pingの実行
+    - name: execute ping
+      cisco.ios.ios_ping:
+        dest: 10.1.1.1
+        count: 10
+        state: present
+      register: res_ping
+
+    # ping実行結果を出力
+    - name: debug ping result
+      ansible.builtin.debug:
+        msg:
+          packet_loss: "{{ res_ping.packet_loss }}"
+          packets_rx: "{{ res_ping.packets_rx }}"
+          packets_tx: "{{ res_ping.packets_tx }}"
+          rtt: "{{ res_ping.rtt }}"

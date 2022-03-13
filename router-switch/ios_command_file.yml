@@ -1,0 +1,34 @@
+---
+- hosts: rt
+  gather_facts: false
+
+  vars:
+    # (1) 実行するshowコマンドの定義
+    show_commands:
+      - show running-config
+      - show version
+      - show interfaces
+      - show ip route
+
+  tasks:
+    # (2) ログ保存用ディレクトリの作成
+    - name: create directory
+      ansible.builtin.file:
+        path: "./log/{{ inventory_hostname }}"
+        state: directory
+      register: logdir
+
+    # (3) showコマンドの実行
+    - name: exec show commands
+      cisco.ios.ios_command:
+        commands: "{{ show_commands }}"
+      register: res_show_commands
+
+    # (4) showコマンド結果のファイル保存
+    - name: save to file
+      ansible.builtin.copy:
+        content: "{{ res_show_commands.stdout[ansible_loop.index0] }}"
+        dest: "{{ logdir.path }}/{{ item | replace(' ', '_') }}.log"
+      loop: "{{ show_commands }}"
+      loop_control:
+        extended: true

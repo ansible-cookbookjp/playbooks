@@ -1,0 +1,18 @@
+---
+- hosts: rt
+  gather_facts: false
+
+  tasks:
+    # IPアドレスの設定
+    - name: set ip address
+      cisco.ios.ios_l3_interfaces:
+        config:
+          - name: GigabitEthernet0/4
+            ipv4:
+              - address: 172.31.1.1/24
+          - name: GigabitEthernet0/5
+            ipv4:
+              - address: 172.31.2.1/24
+            ipv6:
+              - address: 2001:db8::1/64
+        state: merged

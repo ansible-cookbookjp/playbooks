@@ -1,0 +1,13 @@
+---
+- hosts: rt
+  gather_facts: false
+
+  tasks:
+    # pingの実行
+    - name: execute ping
+      cisco.ios.ios_ping:
+        dest: 10.1.1.1
+        count: 10
+        state: present
+      register: res_ping
+      failed_when: res_ping.packet_loss != "0%"   # fail条件を指定

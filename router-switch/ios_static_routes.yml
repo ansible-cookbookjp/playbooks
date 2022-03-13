@@ -1,0 +1,19 @@
+---
+- hosts: rt
+  gather_facts: false
+
+  tasks:
+    # スタティックルートの設定
+    - name: set static route
+      cisco.ios.ios_static_routes:
+        config:
+          - address_families:
+              - afi: ipv4
+                routes:
+                  - dest: 10.1.21.0/24
+                    next_hops:
+                      - forward_router_address: 10.1.2.1
+                  - dest: 10.1.22.0/24
+                    next_hops:
+                      - forward_router_address: 10.1.2.1
+        state: merged

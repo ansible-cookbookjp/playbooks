@@ -1,0 +1,11 @@
+---
+- hosts: rt
+  gather_facts: false
+
+  tasks:
+    - name: set syslog
+      cisco.ios.ios_logging_global:
+        config:
+          hosts:
+            - hostname: 192.168.1.2
+        state: merged

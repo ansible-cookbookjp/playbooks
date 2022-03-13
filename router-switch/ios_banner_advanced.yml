@@ -1,0 +1,11 @@
+---
+- hosts: rt
+  gather_facts: false
+
+  tasks:
+    # Jinja2テンプレートを利用してログインバナーを指定
+    - name: set banner
+      cisco.ios.ios_banner:
+        banner: login
+        text: "{{ lookup('ansible.builtin.template', 'banner.j2') }}"
+        state: present

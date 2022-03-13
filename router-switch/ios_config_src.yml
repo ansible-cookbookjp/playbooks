@@ -1,0 +1,23 @@
+---
+- hosts: rt
+  gather_facts: false
+
+  vars:
+    # Jinja2テンプレート内で利用する変数の定義
+    hsrp_config:
+      - interface: GigabitEthernet0/3
+        version: 2
+        group: 1
+        vip: 10.1.1.254
+        priority: 110
+      - interface: GigabitEthernet0/4
+        version: 2
+        group: 1
+        vip: 172.31.1.254
+        priority: 110
+
+  tasks:
+    # HSRP の設定
+    - name: set HSRP by Jinja2
+      cisco.ios.ios_config:
+        src: hsrp.j2
