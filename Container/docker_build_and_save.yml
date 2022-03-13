@@ -1,0 +1,32 @@
+---
+- hosts: docker
+  gather_facts: false
+
+  vars:
+    local_path: docker_src/
+    remote_path: /var/tmp/docker/build
+    image_file_path: /var/tmp/image/build_image.tar
+
+  tasks:
+    - name: create build src directory
+      ansible.builtin.file:
+        state: directory
+        path: "{{ remote_path }}"
+
+    - name: copy source
+      ansible.builtin.copy:
+        src: "{{ local_path }}"
+        dest: "{{ remote_path }}"
+
+    - name: create image directory
+      ansible.builtin.file:
+        path: "{{ image_file_path | ansible.builtin.dirname }}"
+        state: directory
+
+    - name: build image and save
+      community.docker.docker_image:
+        name: nginx_sample:0.1
+        source: build
+        build:
+          path: "{{ remote_path }}"
+        archive_path: "{{ image_file_path }}"

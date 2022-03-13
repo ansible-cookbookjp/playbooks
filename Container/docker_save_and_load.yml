@@ -1,0 +1,38 @@
+---
+- hosts: docker
+  gather_facts: false
+
+  vars:
+    image_remote_path: /var/tmp/image/sample_image.tar
+    image_local_path: /var/tmp/image/sample_image.tar
+
+  tasks:
+    - name: create directory for iamge file
+      ansible.builtin.file:
+        path: "{{ image_remote_path | ansible.builtin.dirname }}"
+        state: directory
+
+    - name: save image to file
+      community.docker.docker_image:
+        name: nginx_sample
+        tag: "0.1"
+        source: local
+        archive_path: "{{ image_remote_path }}"
+
+    - name: create directory for image file
+      ansible.builtin.file:
+        path: "{{ image_local_path | ansible.builtin.dirname }}"
+        state: directory
+    - name: copy image to localhost
+      ansible.builtin.fetch:
+        src: "{{ image_remote_path }}"
+        dest: "{{ image_local_path }}"
+        flat: true
+
+    - name: load image from file
+      community.docker.docker_image:
+        name: nginx_sample
+        tag: "0.1"
+        load_path: "{{ image_local_path }}"
+        source: load
+      delegate_to: localhost

@@ -1,0 +1,36 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: sample-http
+  name: sample-http
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: sample-http
+  template:
+    metadata:
+      labels:
+        app: sample-http
+    spec:
+      containers:
+        - image: httpd
+          name: httpd
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: sample-http
+  name: sample-http
+spec:
+  ports:
+    - port: 80
+      protocol: TCP
+      targetPort: 80
+      name: http
+  selector:
+    app: sample-http
+  type: NodePort

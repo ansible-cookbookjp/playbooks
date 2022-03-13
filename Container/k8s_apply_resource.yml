@@ -1,0 +1,95 @@
+---
+- hosts: k8s
+  gather_facts: false
+
+  vars:
+    target_namespace: example
+    manifest_file_localpath: kubernetes_src/deployment.yaml
+    manifest_file_remotepath: /var/tmp/kubernetes/deployment.yaml
+
+  tasks:
+    - name: create namespace
+      kubernetes.core.k8s:
+        name: "{{ target_namespace }}"
+        api_version: v1
+        kind: Namespace
+        state: present
+
+    - name: create directory for manifest
+      ansible.builtin.file:
+        state: directory
+        path: "{{ manifest_file_remotepath | ansible.builtin.dirname }}"
+
+    - name: copy manifest file
+      ansible.builtin.copy:
+        src: "{{ manifest_file_localpath }}"
+        dest: "{{ manifest_file_remotepath }}"
+
+    - name: create deployment from a local file
+      kubernetes.core.k8s:
+        namespace: "{{ target_namespace }}"
+        src: "{{ manifest_file_remotepath }}"
+        state: present
+
+    - name: create service from an inline definition
+      kubernetes.core.k8s:
+        state: present
+        resource_definition:
+          apiVersion: v1
+          kind: Service
+          metadata:
+            labels:
+              app: sample-http
+            name: sample-http
+            namespace: "{{ target_namespace }}"
+          spec:
+            ports:
+              - port: 80
+                protocol: TCP
+                targetPort: 80
+                name: http
+            selector:
+              app: sample-http
+            type: NodePort
+
+    - name: create resource by template file from controll node file system
+      kubernetes.core.k8s:
+        state: present
+        template: kubernetes_template/deployment.yaml.j2
+      vars:
+        k8s_template_namespace: template-ns
+        k8s_template_resourcename: template-http
+        k8s_template_replica: 2
+
+    # metallbのインストール
+    - name: download MetalLB manifest
+      ansible.builtin.get_url:
+        url: "{{ item }}"
+        dest: /var/tmp/kubernetes
+        mode: '0664'
+      loop:
+        - https://raw.githubusercontent.com/metallb/metallb/v0.10.2/manifests/namespace.yaml
+        - https://raw.githubusercontent.com/metallb/metallb/v0.10.2/manifests/metallb.yaml
+    - name: deploy MetalLB
+      kubernetes.core.k8s:
+        src: "{{ item }}"
+        state: present
+      loop:
+        - /var/tmp/kubernetes/namespace.yaml
+        - /var/tmp/kubernetes/metallb.yaml
+    - name: create config
+      kubernetes.core.k8s:
+        state: present
+        resource_definition:
+          apiVersion: v1
+          kind: ConfigMap
+          metadata:
+            name: config
+            namespace: metallb-system
+          data:
+            config: |
+              address-pools:
+                - name: default
+                  protocol: layer2
+                  addresses:
+                    - 172.21.240.21-172.21.240.120

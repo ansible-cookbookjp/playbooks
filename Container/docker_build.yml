@@ -1,0 +1,27 @@
+---
+- hosts: docker
+  gather_facts: false
+
+  vars:
+    local_path: docker_src/
+    remote_path: /var/tmp/docker/build
+
+  tasks:
+    - name: create directory
+      ansible.builtin.file:
+        state: directory
+        path: "{{ remote_path }}"
+
+    - name: copy source
+      ansible.builtin.copy:
+        src: "{{ local_path }}"
+        dest: "{{ remote_path }}"
+
+    - name: build image
+      community.docker.docker_image:
+        name: nginx_sample:0.1
+        # name: nginx_sample
+        # tag: "0.1"
+        source: build
+        build:
+          path: "{{ remote_path }}"

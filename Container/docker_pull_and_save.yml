@@ -1,0 +1,19 @@
+---
+- hosts: docker
+  gather_facts: false
+
+  vars:
+    image_file_path: /var/tmp/image/centos-8.tar
+
+  tasks:
+    - name: create directory for image file
+      ansible.builtin.file:
+        path: "{{ image_file_path | ansible.builtin.dirname }}"
+        state: directory
+
+    - name: pull image and save
+      community.docker.docker_image:
+        name: "centos"
+        tag: "8"
+        source: pull
+        archive_path: "{{ image_file_path }}"

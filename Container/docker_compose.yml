@@ -1,0 +1,72 @@
+---
+- hosts: docker
+  gather_facts: false
+
+  vars:
+    compose_file_localpath: compose_sample/
+    compose_file_remotepath: /var/tmp/compose_sample
+
+  tasks:
+    # task内インライン定義
+    - name: exec compose inline
+      community.docker.docker_compose:
+        project_name: sample   # docker-compose実行時のディレクトリ名に相当
+        definition:
+          version: '3'
+          services:
+            my_httpd:
+              image: httpd:latest
+              ports:
+                - 8888:80
+            my_centos:
+              image: centos:7
+              command:
+                - "tail"
+                - "-f"
+                - "/dev/null"
+        state: present
+        # state: absent
+        # stopped: true
+
+    # 既存のDocker Composeファイル利用
+    - name: create directory
+      ansible.builtin.file:
+        state: directory
+        path: "{{ compose_file_remotepath }}"
+
+    - name: copy source
+      ansible.builtin.copy:
+        src: "{{ compose_file_localpath }}"
+        dest: "{{ compose_file_remotepath }}"
+
+    - name: exec compose
+      community.docker.docker_compose:
+        project_src: "{{ compose_file_remotepath }}"
+        state: present
+        # state: absent
+        # stopped: true  # state: presentと併用、runningのコンテナを停止する
+        # コンテナが無い状態(一度もupしていない)で state: present + stopped: trueだと何も起きない
+        # state: absent  # absentはdown(停止&コンテナ削除)
+
+    # GitHubリポジトリ上のComposeファイルをデプロイ
+    # https://github.com/netbox-community/netbox-docker
+    - name: clone git repository
+      ansible.builtin.git:
+        repo: https://github.com/netbox-community/netbox-docker.git
+        dest: ~/local/netbox-docker
+        version: release
+
+    - name: create override file
+      ansible.builtin.copy:
+        content: |
+          version: '3.4'
+          services:
+            netbox:
+              ports:
+                - 8000:8080
+        dest: ~/local/netbox-docker/docker-compose.override.yml
+
+    - name: exec compose
+      community.docker.docker_compose:
+        project_src: ~/local/netbox-docker
+        state: present

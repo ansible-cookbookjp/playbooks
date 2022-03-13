@@ -1,0 +1,15 @@
+---
+- hosts: docker
+  gather_facts: false
+
+  tasks:
+    - name: login to Docker Hub
+      community.docker.docker_login:
+        username: "{{ dockerhub_username }}"
+        password: "{{ dockerhub_password }}"
+
+    - name: login to private container registry
+      community.docker.docker_login:
+        registry_url: gitlab-ce.example.org:25000
+        username: "{{ private_registry_username }}"
+        password: "{{ private_registry_password }}"

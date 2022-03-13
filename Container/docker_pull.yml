@@ -1,0 +1,15 @@
+---
+- hosts: docker
+  gather_facts: false
+
+  tasks:
+    - name: pull image from Docker Hub
+      community.docker.docker_image:
+        name: centos
+        tag: '8'
+        source: pull
+
+    - name: pull image from private container registry
+      community.docker.docker_image:
+        name: gitlab-ce.example.org:25000/ansible-user/sample/httpd:latest
+        source: pull

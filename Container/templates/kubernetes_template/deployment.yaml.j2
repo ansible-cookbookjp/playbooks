@@ -1,0 +1,43 @@
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: {{ k8s_template_namespace }}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: template-sample
+  name: {{ k8s_template_resourcename }}
+  namespace: {{ k8s_template_namespace }}
+spec:
+  replicas: {{ k8s_template_replica }}
+  selector:
+    matchLabels:
+      app: template-sample
+  template:
+    metadata:
+      labels:
+        app: template-sample
+    spec:
+      containers:
+      - image: httpd
+        name: httpd
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: template-sample
+  name: {{ k8s_template_resourcename }}
+  namespace: {{ k8s_template_namespace }}
+spec:
+  ports:
+  - port: 80
+    protocol: TCP
+    targetPort: 80
+    name: http
+  selector:
+    app: template-sample
+  type: ClusterIP

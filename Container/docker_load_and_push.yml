@@ -1,0 +1,25 @@
+---
+- hosts: docker
+  gather_facts: false
+
+  vars:
+    work_dir: /var/tmp
+
+  tasks:
+    - name: create directory for image file
+      ansible.builtin.file:
+        state: directory
+        path: "{{ work_dir }}"
+
+    - name: copy image file
+      ansible.builtin.copy:
+        src: "{{ lookup('ansible.builtin.env', 'HOME') }}/alpine-3.12.tar"
+        dest: "{{ work_dir }}"
+
+    - name: load image and push
+      community.docker.docker_image:
+        name: alpine:3.12
+        repository: gitlab-ce.example.org:25000/ansible-user/sample/alpine:3.12
+        push: true
+        load_path: "{{ work_dir }}/alpine-3.12.tar"
+        source: load

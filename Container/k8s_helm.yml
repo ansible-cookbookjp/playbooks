@@ -1,0 +1,59 @@
+---
+- hosts: k8s
+  gather_facts: false
+
+  vars:
+    helm_values_yaml_localpath: helm/prometheus-values.yaml
+    helm_values_yaml_remotepath: /var/tmp/kubernetes/helm/prometheus-values.yaml
+
+  tasks:
+    - name: add Prometheus repository
+      kubernetes.core.helm_repository:
+        repo_name: prometheus-community
+        repo_url: https://prometheus-community.github.io/helm-charts
+
+    - name: create directory for values.yaml
+      ansible.builtin.file:
+        path: "{{ helm_values_yaml_remotepath | ansible.builtin.dirname }}"
+        state: directory
+    - name: copy values.yaml for helm
+      ansible.builtin.copy:
+        src: "{{ helm_values_yaml_localpath }}"
+        dest: "{{ helm_values_yaml_remotepath }}"
+
+    - name: delploy prometheus helm chart
+      kubernetes.core.helm:
+        chart_ref: prometheus-community/prometheus
+        release_name: prometheus
+        release_namespace: monitoring
+        create_namespace: true
+        update_repo_cache: true
+        release_state: present
+        values_files:
+          - "{{ helm_values_yaml_remotepath }}"
+
+    - name: add grafana repository
+      kubernetes.core.helm_repository:
+        repo_name: grafana
+        repo_url: https://grafana.github.io/helm-charts
+
+    - name: deloy grafana helm chart
+      vars:
+        size: "1Gi"
+      kubernetes.core.helm:
+        chart_ref: grafana/grafana
+        release_name: grafana
+        release_namespace: monitoring
+        create_namespace: true
+        update_repo_cache: true
+        release_state: present
+        # release_state: absent
+        release_values:
+          service:
+            type: LoadBalancer
+          persistence:
+            type: pvc
+            enabled: true
+            accessModes:
+              - ReadWriteOnce
+            size: "{{ size }}"

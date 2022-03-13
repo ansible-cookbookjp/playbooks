@@ -1,0 +1,35 @@
+---
+- hosts: k8s
+  gather_facts: false
+
+  tasks:
+    - name: get resource info
+      kubernetes.core.k8s_info:
+        namespace: monitoring
+        kind: Pod
+      register: k8s_info_result
+
+    - name: print result
+      debug:
+        msg: '{{ k8s_info_result.resources | map(attribute="metadata.name") }}'
+
+    - name: not runnnig prometheus pods
+      kubernetes.core.k8s_info:
+        namespace: monitoring
+        kind: Pod
+        label_selectors:
+          - app=prometheus
+        field_selectors:
+          - status.phase!=Running
+      register: selector_result
+
+    - name: print result
+      debug:
+        msg: '{{ selector_result }}'
+
+    - name: get info by lookup plugin
+      debug:
+        msg: '{{ item }}'
+      loop: "{{ lookup('kubernetes.core.k8s', kind='Pod', namespace='default') | map(attribute='metadata.name') }}"
+      # lookupプラグインはマネージドノードではなくコントロールノードで評価されます。
+      # コントロールノード上でKUBECONFIG等の設定が必要で直接Kubernetesクラスタへ接続可能である必要があります。

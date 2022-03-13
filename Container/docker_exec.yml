@@ -1,0 +1,19 @@
+---
+- hosts: docker
+  gather_facts: false
+
+  tasks:
+    - name: run command
+      community.docker.docker_container_exec:
+        container: work_container
+        command: sh -c "cat - > sample.txt"
+        chdir: /var/tmp
+        stdin: |
+          Hello
+          Ansible
+        stdin_add_newline: false
+      register: result
+
+    - name: print result
+      debug:
+        msg: '{{ result }}'

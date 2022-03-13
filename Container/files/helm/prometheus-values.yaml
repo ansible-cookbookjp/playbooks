@@ -1,0 +1,28 @@
+server:
+  ## Prometheus server container name
+  ##
+  enabled: true
+
+  service:
+    servicePort: 80
+    sessionAffinity: None
+    # type: ClusterIP
+    type: LoadBalancer
+
+    ## Enable gRPC port on service to allow auto discovery with thanos-querier
+    gRPC:
+      enabled: false
+      servicePort: 10901
+      # nodePort: 10901
+
+    ## If using a statefulSet (statefulSet.enabled=true), configure the
+    ## service to connect to a specific replica to have a consistent view
+    ## of the data.
+    statefulsetReplica:
+      enabled: false
+      replica: 0
+
+pushgateway:
+  ## If false, pushgateway will not be installed
+  ##
+  enabled: false

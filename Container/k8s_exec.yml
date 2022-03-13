@@ -1,0 +1,32 @@
+---
+- hosts: k8s
+  gather_facts: false
+
+  tasks:
+    - name: get pod info
+      kubernetes.core.k8s_info:
+        namespace: monitoring
+        kind: Pod
+      register: result
+
+    - name: set_fact
+      ansible.builtin.set_fact:
+        pod_info:
+          name: '{{ result.resources
+                    | selectattr("metadata.name", "match", "prometheus-server")
+                    | map(attribute="metadata.name")
+                    | first
+                  }}'
+          containers: prometheus-server
+
+    - name: exec command on prometheus
+      kubernetes.core.k8s_exec:
+        namespace: monitoring
+        pod: "{{ pod_info.name }}"
+        container: "{{ pod_info.containers }}"
+        command: prometheus --version
+      register: result
+
+    - name: print result
+      debug:
+        msg: '{{ result }}'

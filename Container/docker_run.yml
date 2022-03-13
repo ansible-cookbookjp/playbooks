@@ -1,0 +1,50 @@
+---
+- hosts: docker
+  gather_facts: false
+
+  tasks:
+    # コンテナ間通信用docker networkを作成
+    - name: create docker network
+      community.docker.docker_network:
+        name: my_docker_network
+        driver: bridge
+        # ipam_config:
+        #   - subnet: 10.21.0.0/24
+
+    - name: run postgres container
+      community.docker.docker_container:
+        name: my_postgres
+        image: postgres:13-alpine
+        env:
+          POSTGRES_DB: sample_db
+          POSTGRES_USER: user
+          POSTGRES_PASSWORD: secret
+        volumes:
+          - pgdata:/var/lib/postgresql/data
+        networks:
+          - name: my_docker_network
+
+    - name: run nginx container
+      community.docker.docker_container:
+        name: my_nginx
+        image: nginx_sample:0.1
+        published_ports:
+          - 8080:80
+        networks:
+          - name: my_docker_network
+        volumes:
+          - log-data:/var/log/nginx/
+          - /opt/www:/usr/share/nginx/html/hostdata
+
+    - name: run sample container
+      community.docker.docker_container:
+        name: my_centos
+        image: centos:7
+        command:
+          - tail
+          - -f
+          - /dev/null
+        networks:
+          - name: my_docker_network
+        volumes_from:
+          - my_nginx

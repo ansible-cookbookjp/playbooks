@@ -1,0 +1,13 @@
+---
+version: '3'
+services:
+  my-httpd:
+    image: httpd
+    ports:
+      - 8080:80
+  client:
+    image: centos:7
+    command:
+      - "tail"
+      - "-f"
+      - "/dev/null"

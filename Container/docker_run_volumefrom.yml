@@ -1,0 +1,32 @@
+---
+- hosts: docker
+  gather_facts: false
+
+  tasks:
+
+    # volume指定でコンテナデプロイ
+    - name: stop postgres container
+      community.docker.docker_container:
+        name: my_postgres
+        state: stopped
+
+    # volume使用コンテナと同じマウント設定でコンテナデプロイしtarバックアップ
+    - name: run centos container
+      community.docker.docker_container:
+        name: work_container
+        image: centos:7
+        command: tar cvf /backup/backup.tar /var/lib/postgresql/data
+        volumes_from:
+          - my_postgres
+        volumes:
+          - /tmp/container/postgres:/backup
+        state: started
+        auto_remove: true
+
+    # # ここではdocker_container_execモジュールの実行例としてファイルシステムをtarでバックアップしています。
+    # # 使用するアプリケーションやミドルウェアのドキュメントを参照し、指定されているバックアップ手順を行ってください。
+
+    - name: start postgres container
+      community.docker.docker_container:
+        name: my_postgres
+        state: started

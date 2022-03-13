@@ -1,0 +1,49 @@
+---
+- hosts: k8s
+  gather_facts: false
+
+  tasks:
+    - name: get pod info
+      kubernetes.core.k8s_info:
+        namespace: monitoring
+        kind: Pod
+      register: k8s_info_result
+
+    - name: set_fact
+      ansible.builtin.set_fact:
+        pod_info:
+          name: '{{ k8s_info_result.resources
+                    | selectattr("metadata.name", "match", "prometheus-server")
+                    | map(attribute="metadata.name")
+                    | first
+                  }}'
+          containers: '{{ k8s_info_result.resources
+                          | selectattr("metadata.name", "match", "prometheus-server")
+                          | map(attribute="spec.containers")
+                          | first
+                          | map(attribute="name")
+                          | list
+                        }}'
+
+    - name: get logs from pod
+      kubernetes.core.k8s_log:
+        namespace: monitoring
+        name: "{{ pod_info.name }}"
+        container: "{{ item }}"
+      loop: "{{ pod_info.containers }}"
+      register: k8s_log_result
+
+    - name: print result
+      debug:
+        msg: '{{ k8s_log_result.results }}'
+
+    - name: get logs with label
+      kubernetes.core.k8s_log:
+        namespace: example
+        label_selectors:
+          - app=sample-http
+      register: k8s_log_label_result
+
+    - name: print result
+      debug:
+        msg: '{{ k8s_log_label_result }}'

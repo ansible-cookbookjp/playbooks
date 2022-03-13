@@ -1,0 +1,19 @@
+---
+- hosts: docker
+  gather_facts: false
+
+  tasks:
+    - name: push image to Docker Hub
+      community.docker.docker_image:
+        name: nginx_sample
+        tag: "0.1"
+        repository: "{{ dockerhub_repository_path }}"
+        push: true
+        source: local
+
+    - name: push image to private container registry
+      community.docker.docker_image:
+        name: nginx_sample:0.1
+        repository: gitlab-ce.example.org:25000/ansible-user/sample/nginx_sample:0.1
+        push: true
+        source: local
