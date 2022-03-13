@@ -1,0 +1,10 @@
+---
+- hosts: bigip
+  connection: ansible.builtin.local
+  gather_facts: false
+
+  tasks:
+    - name: fetch bigip_device_info
+      f5networks.f5_modules.bigip_device_info:
+        gather_subset:
+          - system-info

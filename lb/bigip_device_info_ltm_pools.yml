@@ -1,0 +1,19 @@
+---
+- hosts: bigip
+  connection: ansible.builtin.local
+  gather_facts: false
+  vars:
+    pool: http_pool
+  tasks:
+    - name: fetch ltm-pool info
+      f5networks.f5_modules.bigip_device_info:
+        gather_subset:
+          - ltm-pools
+      register: res_ltm_pool
+
+    - name: debug current sessions
+      debug:
+        msg: "{{ filter_res.current_sessions }}"
+      vars:
+        ltm_pools: "{{ res_ltm_pool.ansible_facts.ansible_net_ltm_pools }}"
+        filter_res: "{{ ltm_pools | selectattr('name','==',pool) | first }}"

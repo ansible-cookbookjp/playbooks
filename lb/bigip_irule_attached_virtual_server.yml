@@ -1,0 +1,12 @@
+---
+- hosts: bigip
+  connection: ansible.builtin.local
+  gather_facts: false
+
+  tasks:
+    - name: attached irule to virtual server
+      f5networks.f5_modules.bigip_virtual_server:
+        state: present
+        name: web_server001
+        irules:
+          - _sys_https_redirect

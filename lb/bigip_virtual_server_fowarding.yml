@@ -1,0 +1,20 @@
+---
+- hosts: bigip
+  connection: ansible.builtin.local
+  gather_facts: false
+
+  tasks:
+    - name: create forwarding virtual server(from internal to external)
+      f5networks.f5_modules.bigip_virtual_server:
+        state: present
+        name: forwarding_virtual_server
+        source: '10.100.0.0/26'
+        destination: '0.0.0.0'
+        mask: '0'
+        port: '*'
+        ip_protocol: any
+        profiles:
+          - fastL4
+        enabled_vlans:
+          - /Common/external
+        type: forwarding-ip

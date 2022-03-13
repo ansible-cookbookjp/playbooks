@@ -1,0 +1,15 @@
+---
+- hosts: bigip
+  connection: ansible.builtin.local
+  gather_facts: false
+
+  tasks:
+    - name: create node (ip)
+      f5networks.f5_modules.bigip_node:
+        state: present
+        name: web_node001
+        address: 10.100.0.135
+        monitors: /Common/icmp
+        availability_requirements:
+          type: all
+        connection_limit: 0

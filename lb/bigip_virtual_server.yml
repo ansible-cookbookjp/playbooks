@@ -1,0 +1,20 @@
+---
+- hosts: bigip
+  connection: ansible.builtin.local
+  gather_facts: false
+
+  tasks:
+    - name: create standard virtual server
+      f5networks.f5_modules.bigip_virtual_server:
+        state: present
+        name: web_server001
+        source: '0.0.0.0/0'
+        destination: '10.100.0.246'
+        port: '8080'
+        profiles:
+          - http_profile
+        enabled_vlans:
+          - /Common/external
+        snat: automap
+        type: standard
+        pool: http_pool

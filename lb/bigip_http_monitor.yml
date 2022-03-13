@@ -1,0 +1,15 @@
+---
+- hosts: bigip
+  connection: ansible.builtin.local
+  gather_facts: false
+
+  tasks:
+    - name: create http monitor
+      f5networks.f5_modules.bigip_monitor_http:
+        state: present
+        name: http_monitor
+        ip: '*'
+        port: '*'
+        send: 'GET /\r\n'
+        receive: ''
+        interval: 5

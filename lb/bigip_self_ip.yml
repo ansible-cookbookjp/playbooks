@@ -1,0 +1,15 @@
+---
+- hosts: bigip
+  connection: ansible.builtin.local
+  gather_facts: false
+
+  tasks:
+    - name: create selfip(non-flooting)
+      f5networks.f5_modules.bigip_selfip:
+        state: present
+        name: "internal_selfip"
+        address: "{{ '10.100.0.143/6' | ansible.netcommon.ipaddr('address') }}"
+        netmask: "{{ '10.100.0.143/26' | ansible.netcommon.ipaddr('netmask') }}"
+        vlan: "internal"
+        allow_service: default
+        traffic_group: /Common/traffic-group-local-only

@@ -1,0 +1,11 @@
+---
+- hosts: bigip
+  connection: ansible.builtin.local
+  gather_facts: false
+
+  tasks:
+    - name: create http profile
+      f5networks.f5_modules.bigip_profile_http:
+        state: present
+        name: http_profile
+        insert_xforwarded_for: true

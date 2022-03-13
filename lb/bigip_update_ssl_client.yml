@@ -1,0 +1,31 @@
+---
+- hosts: bigip
+  connection: ansible.builtin.local
+  gather_facts: false
+
+  tasks:
+    # (1) 秘密鍵と証明書のインポート
+    - name: import key and certificate
+      f5networks.f5_modules.bigip_ssl_key_cert:
+        key_name: sample_key
+        key_content: "{{ lookup('file', 'files/server.key') }}"
+        cert_name: sample_cert
+        cert_content: "{{ lookup('file', 'files/server.crt') }}"
+
+    # (2) SSL Profileの作成
+    - name: create client ssl profile
+      f5networks.f5_modules.bigip_profile_client_ssl:
+        name: sslclient01
+        cert_key_chain:
+          - cert: sample_cert
+            key: sample_key
+
+    # (3) SSL ProfileをVirtualServerにマッピング
+    - name: update the ssl profile of the virtual server
+      f5networks.f5_modules.bigip_virtual_server:
+        state: present
+        name: web_server001
+        port: '443'
+        profiles:
+          - name: sslclient01
+            context: client-side

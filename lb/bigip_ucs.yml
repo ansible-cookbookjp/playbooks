@@ -1,0 +1,14 @@
+---
+- hosts: bigip
+  connection: ansible.builtin.local
+  gather_facts: false
+  vars:
+    backup_ucs: "{{ now(False, '%Y%m%d_%H%M%S') }}.ucs"
+
+  tasks:
+    - name: create ucs
+      f5networks.f5_modules.bigip_ucs_fetch:
+        backup: true
+        dest: "{{ playbook_dir }}/files/{{ backup_ucs }}"
+        force: true
+        create_on_missing: true

@@ -1,0 +1,19 @@
+---
+- hosts: bigip
+  connection: ansible.builtin.local
+  gather_facts: false
+  vars:
+    assign_interface: 1.1
+    tagging: untagged
+    vlan_id: 11
+    vlan_name: internal
+
+  tasks:
+    - name: create internal vlan
+      f5networks.f5_modules.bigip_vlan:
+        interfaces:
+          - interface: "{{ assign_interface }}"
+            tagging: "{{ tagging }}"
+        name: "{{ vlan_name }}"
+        tag: "{{ vlan_id }}"
+        state: present

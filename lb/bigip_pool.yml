@@ -1,0 +1,23 @@
+---
+- hosts: bigip
+  connection: ansible.builtin.local
+  gather_facts: false
+  vars:
+    pool_name: http_pool
+
+  tasks:
+    - name: create pool
+      f5networks.f5_modules.bigip_pool:
+        state: present
+        name: "{{ pool_name }}"
+        monitors: http_monitor
+        lb_method: least-connections-member
+
+    - name: add a pool member
+      f5networks.f5_modules.bigip_pool_member:
+        state: present
+        pool: "{{ pool_name }}"
+        aggregate:
+          - name: web_node001
+            address: 10.100.0.135
+            port: 80
